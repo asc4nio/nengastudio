@@ -51,6 +51,22 @@ const size = new THREE.Vector3(10, 10, 10);
 
 /////////////////////////////////////////////////////////////////////////////
 
+document.getElementById("save-button").addEventListener("click", () => {
+  saveAsImage();
+});
+
+function saveAsImage() {
+  let link = document.createElement("a");
+  link.download = "image.png";
+
+  renderer.domElement.toBlob(function (blob) {
+    link.href = URL.createObjectURL(blob);
+    link.click();
+  }, "image/png");
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 const threeInit = () => {
   scene = new THREE.Scene();
   raycaster = new THREE.Raycaster();
@@ -70,7 +86,11 @@ const threeInit = () => {
   camera.updateProjectionMatrix();
 
   //renderer
-  renderer = new THREE.WebGLRenderer();
+  renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    preserveDrawingBuffer: true,
+  });
+
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
