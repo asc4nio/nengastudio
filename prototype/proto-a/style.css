@@ -6,6 +6,10 @@ body {
   padding: 0;
 }
 
+canvas {
+  touch-action: none;
+}
+
 #threejs {
   position: fixed;
   top: 0;

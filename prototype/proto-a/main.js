@@ -1,6 +1,5 @@
 import * as THREE from "three";
-// import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-// import { DecalGeometry } from "three/addons/geometries/DecalGeometry.js";
+import { DecalGeometry } from "three/addons/geometries/DecalGeometry.js";
 
 let scene, camera, renderer;
 let plane;
@@ -18,9 +17,37 @@ const intersection = {
 var pointerState = {
   shootRadius: 20,
   isPointerDown: false,
-  canShoot: false,
+  // canShoot: false,
   actionStartPos: new THREE.Vector2(),
 };
+
+/////////////////////////////////////////////////////////////////////////////
+
+let lastDecalPos;
+
+const textureLoader = new THREE.TextureLoader();
+const decalDiffuse = textureLoader.load("./assets/test-diffuse.png");
+decalDiffuse.colorSpace = THREE.SRGBColorSpace;
+const decalNormal = textureLoader.load("./assets/test-normal.jpg");
+const decalMaterial = new THREE.MeshPhongMaterial({
+  specular: 0x444444,
+  map: decalDiffuse,
+  normalMap: decalNormal,
+  normalScale: new THREE.Vector2(1, 1),
+  shininess: 30,
+  transparent: true,
+  depthTest: true,
+  depthWrite: false,
+  polygonOffset: true,
+  polygonOffsetFactor: -4,
+  wireframe: false,
+});
+
+let decals = [];
+
+const position = new THREE.Vector3();
+const orientation = new THREE.Euler();
+const size = new THREE.Vector3(10, 10, 10);
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +64,7 @@ const threeInit = () => {
   );
   camera.position.z = 5;
 
-  let camDist = camera.position.z - 1;
+  let camDist = camera.position.z - 0;
   let heightToFit = 1; // desired height to fit
   camera.fov = 2 * Math.atan(heightToFit / (2 * camDist)) * (180 / Math.PI);
   camera.updateProjectionMatrix();
@@ -52,14 +79,20 @@ const threeInit = () => {
   gridHelper.rotation.x = Math.PI * 0.5;
   scene.add(gridHelper); //helper
 
+  //lights
+  scene.add(new THREE.AmbientLight(0x443333));
+
   //plane
-  const planeGeometry = new THREE.PlaneGeometry(1, 1);
+  const planeGeometry = new THREE.PlaneGeometry(
+    1 * (window.innerWidth / window.innerHeight),
+    1
+  );
   const planeMaterial = new THREE.MeshBasicMaterial({
     color: 0x0000ff,
     side: THREE.DoubleSide,
   });
   plane = new THREE.Mesh(planeGeometry, planeMaterial);
-  //plane.scale.set(0.9, 0.9, 1);
+  plane.scale.set(0.9, 0.9, 1);
   scene.add(plane);
 
   //pointer line
@@ -100,13 +133,13 @@ const threeInit = () => {
         diffY > pointerState.shootRadius
       ) {
         // console.log("pointermove", diffX, diffY);
-        pointerState.canShoot = true;
-        console.log("canShoot", pointerState.canShoot);
+        // pointerState.canShoot = true;
+        // console.log("canShoot", pointerState.canShoot);
 
         checkIntersection(event.clientX, event.clientY);
-        // if (intersection.intersects) shoot();
+        if (intersection.intersects) shoot();
 
-        pointerState.canShoot = false;
+        // pointerState.canShoot = false;
         pointerState.actionStartPos.x = event.pageX;
         pointerState.actionStartPos.y = event.pageY;
       } else {
@@ -170,6 +203,42 @@ function checkIntersection(x, y) {
     // console.log(intersects)
     intersection.intersects = false;
   }
+}
+
+function shoot() {
+  let dir;
+
+  if (lastDecalPos) {
+    let direction = new THREE.Vector3();
+    direction.subVectors(lastDecalPos, intersection.point);
+
+    dir = Math.atan2(direction.y, direction.x) + Math.PI / 2;
+    console.log(dir);
+  }
+
+  position.copy(intersection.point);
+  orientation.copy(mouseHelper.rotation);
+
+  orientation.z = dir;
+
+  // if (params.rotate) orientation.z = Math.random() * 2 * Math.PI;
+
+  const scale = 0.1;
+  size.set(scale, scale, scale);
+
+  const material = decalMaterial.clone();
+  material.color.setHex(Math.random() * 0xffffff);
+  // material.color.setHex(0xffffff);
+
+  const m = new THREE.Mesh(
+    new DecalGeometry(plane, position, orientation, size),
+    material
+  );
+
+  decals.push(m);
+  scene.add(m);
+
+  lastDecalPos = position;
 }
 
 /////////////////////////////////////////////////////////////////////////////
