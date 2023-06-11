@@ -34,7 +34,7 @@ const decalMaterial = new THREE.MeshPhongMaterial({
   map: decalDiffuse,
   normalMap: decalNormal,
   normalScale: new THREE.Vector2(1, 1),
-  shininess: 30,
+  shininess: 10,
   transparent: true,
   depthTest: true,
   depthWrite: false,
@@ -64,6 +64,45 @@ function saveAsImage() {
     link.click();
   }, "image/png");
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+const denimNormalTexture = new THREE.TextureLoader().load(
+  "./assets/denim-normal.jpg"
+);
+denimNormalTexture.wrapS = THREE.RepeatWrapping;
+denimNormalTexture.wrapT = THREE.RepeatWrapping;
+denimNormalTexture.repeat.set(0.5, 0.5);
+
+const denimRoughnessTexture = new THREE.TextureLoader().load(
+  "./assets/denim-roughness.jpg"
+);
+denimRoughnessTexture.wrapS = THREE.RepeatWrapping;
+denimRoughnessTexture.wrapT = THREE.RepeatWrapping;
+denimRoughnessTexture.repeat.set(0.5, 0.5);
+
+const denimDiffuseTexture = new THREE.TextureLoader().load(
+  "./assets/denim-diffuse.jpg"
+);
+denimDiffuseTexture.wrapS = THREE.RepeatWrapping;
+denimDiffuseTexture.wrapT = THREE.RepeatWrapping;
+denimDiffuseTexture.repeat.set(0.5, 0.5);
+denimDiffuseTexture.colorSpace = THREE.SRGBColorSpace;
+
+const denimMaterial = new THREE.MeshPhysicalMaterial({
+  // specular: 0x444444,
+  // map: denimDiffuseTexture,
+  normalMap: denimNormalTexture,
+  normalScale: new THREE.Vector2(1, 1),
+  roughnessMap: denimRoughnessTexture,
+  // shininess: 30,
+  transparent: true,
+  depthTest: true,
+  depthWrite: false,
+  polygonOffset: true,
+  // polygonOffsetFactor: -4,
+  wireframe: false,
+});
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -101,6 +140,13 @@ const threeInit = () => {
 
   //lights
   scene.add(new THREE.AmbientLight(0x443333));
+  const dirLight1 = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight1.position.set(1, 0.75, 0.5);
+  scene.add(dirLight1);
+
+  // const dirLight2 = new THREE.DirectionalLight(0xccccff, 1);
+  // dirLight2.position.set(-1, 0.75, -0.5);
+  // scene.add(dirLight2);
 
   //plane
   const planeGeometry = new THREE.PlaneGeometry(
@@ -111,8 +157,8 @@ const threeInit = () => {
     color: 0x0000ff,
     side: THREE.DoubleSide,
   });
-  plane = new THREE.Mesh(planeGeometry, planeMaterial);
-  plane.scale.set(0.9, 0.9, 1);
+  plane = new THREE.Mesh(planeGeometry, denimMaterial);
+  // plane.scale.set(0.9, 0.9, 1);
   scene.add(plane);
 
   //pointer line
@@ -243,12 +289,12 @@ function shoot() {
 
   // if (params.rotate) orientation.z = Math.random() * 2 * Math.PI;
 
-  const scale = 0.1;
+  const scale = 0.05;
   size.set(scale, scale, scale);
 
   const material = decalMaterial.clone();
-  material.color.setHex(Math.random() * 0xffffff);
-  // material.color.setHex(0xffffff);
+  // material.color.setHex(Math.random() * 0xffffff);
+  material.color.setHex(0xaaaaaa);
 
   const m = new THREE.Mesh(
     new DecalGeometry(plane, position, orientation, size),
