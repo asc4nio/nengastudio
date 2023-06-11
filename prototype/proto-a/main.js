@@ -2,46 +2,63 @@ import * as THREE from "three";
 // import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 // import { DecalGeometry } from "three/addons/geometries/DecalGeometry.js";
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
+let scene, camera, renderer;
+let plane;
 
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+const threeInit = () => {
+  scene = new THREE.Scene();
 
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+  //camera
+  camera = new THREE.PerspectiveCamera(
+    30,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+  );
+  camera.position.z = 5;
 
-camera.position.z = 5;
+  let camDist = camera.position.z - 1;
+  let heightToFit = 1; // desired height to fit
+  camera.fov = 2 * Math.atan(heightToFit / (2 * camDist)) * (180 / Math.PI);
+  camera.updateProjectionMatrix();
 
-function animate() {
-  requestAnimationFrame(animate);
+  //renderer
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
 
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
+  //gridHelper
+  let gridHelper = new THREE.GridHelper(4, 4, 0x888888, 0x444444);
+  gridHelper.rotation.x = Math.PI * 0.5;
+  scene.add(gridHelper); //helper
 
+  //plane
+  const planeGeometry = new THREE.PlaneGeometry(1, 1);
+  const planeMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffff00,
+    side: THREE.DoubleSide,
+  });
+  plane = new THREE.Mesh(planeGeometry, planeMaterial);
+  //plane.scale.set(0.9, 0.9, 1);
+  scene.add(plane);
+
+  threeAnimate();
+};
+
+const threeAnimate = () => {
   renderer.render(scene, camera);
-}
 
-animate();
+  requestAnimationFrame(threeAnimate);
+};
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
-
-  // fitCamera();
-  // renderer.setSize(container.offsetWidth, container.offsetHeight);
-  // renderer.setPixelRatio(window.devicePixelRatio);
 }
 window.addEventListener("resize", onWindowResize);
+
+threeInit();
 
 /*
 let container, camera, scene, renderer;
@@ -99,9 +116,9 @@ function animate() {
 const fitCamera = () => {
   camera.aspect = container.offsetWidth / container.offsetHeight;
 
-  let dist = camera.position.z - 1;
+  let camDist = camera.position.z - 1;
   let height = 1; // desired height to fit
-  camera.fov = 2 * Math.atan(height / (2 * dist)) * (180 / Math.PI);
+  camera.fov = 2 * Math.atan(height / (2 * camDist)) * (180 / Math.PI);
   camera.updateProjectionMatrix();
 };
 
