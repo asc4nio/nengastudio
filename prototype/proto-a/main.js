@@ -29,7 +29,7 @@ const textureLoader = new THREE.TextureLoader();
 const decalDiffuse = textureLoader.load("./assets/test-diffuse.png");
 decalDiffuse.colorSpace = THREE.SRGBColorSpace;
 const decalNormal = textureLoader.load("./assets/test-normal.jpg");
-const decalMaterial = new THREE.MeshPhongMaterial({
+const decalMaterial = new THREE.MeshStandardMaterial({
   specular: 0x444444,
   map: decalDiffuse,
   normalMap: decalNormal,
@@ -72,29 +72,49 @@ const denimNormalTexture = new THREE.TextureLoader().load(
 );
 denimNormalTexture.wrapS = THREE.RepeatWrapping;
 denimNormalTexture.wrapT = THREE.RepeatWrapping;
-denimNormalTexture.repeat.set(0.5, 0.5);
+denimNormalTexture.repeat.set(
+  0.5 * (window.innerWidth / window.innerHeight),
+  0.5
+);
 
 const denimRoughnessTexture = new THREE.TextureLoader().load(
   "./assets/denim-roughness.jpg"
 );
 denimRoughnessTexture.wrapS = THREE.RepeatWrapping;
 denimRoughnessTexture.wrapT = THREE.RepeatWrapping;
-denimRoughnessTexture.repeat.set(0.5, 0.5);
+denimRoughnessTexture.repeat.set(
+  0.5 * (window.innerWidth / window.innerHeight),
+  0.5
+);
+
+const denimBumpTexture = new THREE.TextureLoader().load(
+  "./assets/denim-bump.jpg"
+);
+denimBumpTexture.wrapS = THREE.RepeatWrapping;
+denimBumpTexture.wrapT = THREE.RepeatWrapping;
+denimBumpTexture.repeat.set(
+  0.5 * (window.innerWidth / window.innerHeight),
+  0.5
+);
 
 const denimDiffuseTexture = new THREE.TextureLoader().load(
   "./assets/denim-diffuse.jpg"
 );
 denimDiffuseTexture.wrapS = THREE.RepeatWrapping;
 denimDiffuseTexture.wrapT = THREE.RepeatWrapping;
-denimDiffuseTexture.repeat.set(0.5, 0.5);
+denimDiffuseTexture.repeat.set(
+  0.5 * (window.innerWidth / window.innerHeight),
+  0.5
+);
 denimDiffuseTexture.colorSpace = THREE.SRGBColorSpace;
 
-const denimMaterial = new THREE.MeshPhysicalMaterial({
+const denimMaterial = new THREE.MeshStandardMaterial({
   // specular: 0x444444,
-  // map: denimDiffuseTexture,
+  map: denimDiffuseTexture,
   normalMap: denimNormalTexture,
   normalScale: new THREE.Vector2(1, 1),
   roughnessMap: denimRoughnessTexture,
+  bumpMap: denimBumpTexture,
   // shininess: 30,
   transparent: true,
   depthTest: true,
@@ -140,13 +160,14 @@ const threeInit = () => {
 
   //lights
   scene.add(new THREE.AmbientLight(0x443333));
+
   const dirLight1 = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight1.position.set(1, 0.75, 0.5);
+  dirLight1.position.set(-1, 0.75, 0.5);
   scene.add(dirLight1);
 
-  // const dirLight2 = new THREE.DirectionalLight(0xccccff, 1);
-  // dirLight2.position.set(-1, 0.75, -0.5);
-  // scene.add(dirLight2);
+  const dirLight2 = new THREE.DirectionalLight(0xccccff, 1);
+  dirLight2.position.set(1, 0.75, 0.2);
+  scene.add(dirLight2);
 
   //plane
   const planeGeometry = new THREE.PlaneGeometry(
