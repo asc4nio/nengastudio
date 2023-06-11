@@ -2,20 +2,11 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { DecalGeometry } from "three/addons/geometries/DecalGeometry.js";
 
-// import * as THREE from 'three';
-// import { OrbitControls } from '../lib/three.js/examples/jsm/controls/OrbitControls.js';
-
-// import gsap from "gsap"
-// import * as dat from 'dat.gui';
-
-let container, camera, scene, renderer, controls;
-// const gui = new dat.GUI();
+let container, camera, scene, renderer;
 
 let lastDecalPos;
 
-let mesh;
-let raycaster;
-let helperLine;
+let mesh, raycaster, helperLine;
 
 const intersection = {
   intersects: false,
@@ -26,9 +17,9 @@ const mouse = new THREE.Vector2();
 const intersects = [];
 
 const textureLoader = new THREE.TextureLoader();
-const decalDiffuse = textureLoader.load("./asset/test-diffuse.png");
+const decalDiffuse = textureLoader.load("./assets/test-diffuse.png");
 decalDiffuse.colorSpace = THREE.SRGBColorSpace;
-const decalNormal = textureLoader.load("./asset/test-normal.jpg");
+const decalNormal = textureLoader.load("./assets/test-normal.jpg");
 
 const decalMaterial = new THREE.MeshPhongMaterial({
   specular: 0x444444,
@@ -45,6 +36,7 @@ const decalMaterial = new THREE.MeshPhongMaterial({
 });
 
 const decals = [];
+
 let mouseHelper;
 const position = new THREE.Vector3();
 const orientation = new THREE.Euler();
@@ -61,8 +53,6 @@ const params = {
 
 function init() {
   container = document.querySelector("#threejs");
-  // console.log(container.offsetWidth)
-  // console.log(container.offsetHeight)
 
   // CAMERA
   camera = new THREE.PerspectiveCamera(
@@ -71,14 +61,12 @@ function init() {
     0.25,
     20
   );
-  // camera = new THREE.OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
-
   camera.position.set(0, 0, 5);
 
-  //   let dist = camera.position.z - 1;
-  //   let height = 1; // desired height to fit
-  //   camera.fov = 2 * Math.atan(height / (2 * dist)) * (180 / Math.PI);
-  //   camera.updateProjectionMatrix();
+  let dist = camera.position.z - 1;
+  let height = 1; // desired height to fit
+  camera.fov = 2 * Math.atan(height / (2 * dist)) * (180 / Math.PI);
+  camera.updateProjectionMatrix();
 
   // SCENE
   scene = new THREE.Scene();
@@ -273,10 +261,22 @@ function animate() {
 }
 
 function onWindowResize() {
+  // camera.aspect = container.offsetWidth / container.offsetHeight;
+  // camera.updateProjectionMatrix();
+
+  // renderer.setSize(container.offsetWidth, container.offsetHeight);
+
+  // Set the camera's aspect ratio
   camera.aspect = container.offsetWidth / container.offsetHeight;
+
+  // update the camera's frustum
   camera.updateProjectionMatrix();
 
+  // update the size of the renderer AND the canvas
   renderer.setSize(container.offsetWidth, container.offsetHeight);
+
+  // set the pixel ratio (for mobile devices)
+  renderer.setPixelRatio(window.devicePixelRatio);
 }
 window.addEventListener("resize", onWindowResize);
 
