@@ -15,3 +15,7 @@ body {
 
   touch-action: none;
 }
+
+canvas {
+  touch-action: none;
+}

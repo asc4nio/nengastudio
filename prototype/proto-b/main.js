@@ -1,23 +1,38 @@
-let res = 40;
-let size = 10;
+let subRes = 8;
+let gridRes = 5 * subRes;
+let gridSize = 16;
 
 let mousePos;
 let brushes = [];
 let activeBrush = 0;
+let denimImage;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function preload() {
   brushes[0] = loadImage("./assets/brush01.png");
   brushes[1] = loadImage("./assets/brush02.png");
+  denimImage = loadImage("./assets/denim-bg02.jpg");
 }
 
 function setup() {
-  var myCanvas = createCanvas(size * res, size * res);
+  var myCanvas = createCanvas(gridSize * gridRes, gridSize * gridRes);
   myCanvas.parent("p5js");
 
   background(220);
   noSmooth();
+
+  image(
+    denimImage,
+    0,
+    0,
+    gridRes * gridSize,
+    gridRes * gridSize,
+    0,
+    0,
+    (gridRes * gridSize) / subRes,
+    (gridRes * gridSize) / subRes
+  );
 
   mousePos = createVector();
 }
@@ -29,41 +44,51 @@ function draw() {
   mousePos.y = mouseY;
 
   // console.log(mousePos);
-  for (let i = 0; i < size; i++) {
-    line(i * res, 0, i * res, height);
-  }
-  for (let i = 0; i < size; i++) {
-    line(0, i * res, width, i * res);
-  }
+  // for (let i = 0; i < gridSize; i++) {
+  //   line(i * gridRes, 0, i * gridRes, height);
+  // }
+  // for (let i = 0; i < gridSize; i++) {
+  //   line(0, i * gridRes, width, i * gridRes);
+  // }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const getItem = () => {
   let limitedMousePos = createVector();
-  mousePos.x > res * size
-    ? (limitedMousePos.x = res * size)
+  mousePos.x > gridRes * gridSize
+    ? (limitedMousePos.x = gridRes * gridSize)
     : (limitedMousePos.x = mousePos.x);
-  mousePos.y > res * size
-    ? (limitedMousePos.y = res * size)
+  mousePos.y > gridRes * gridSize
+    ? (limitedMousePos.y = gridRes * gridSize)
     : (limitedMousePos.y = mousePos.y);
 
   // console.log(limitedMousePos);
 
   ////////////////////////////////////////
 
-  let xIndex = Math.floor(limitedMousePos.x / res);
-  let yIndex = Math.floor(limitedMousePos.y / res);
+  let xIndex = Math.floor(limitedMousePos.x / gridRes);
+  let yIndex = Math.floor(limitedMousePos.y / gridRes);
   console.log(xIndex, yIndex);
 
   ////////////////////////////////////////
 
   // push();
   // fill(50);
-  // rect(xIndex * res, yIndex * res, res, res);
+  // rect(xIndex * gridRes, yIndex * gridRes, gridRes, gridRes);
   // pop();
 
-  copy(brushes[activeBrush], 0, 0, 8, 8, xIndex * res, yIndex * res, res, res);
+  copy(
+    brushes[activeBrush],
+    0,
+    0,
+    8,
+    8,
+    xIndex * gridRes,
+    yIndex * gridRes,
+    gridRes,
+    gridRes
+  );
 };
 
 const hoverItem = () => {};

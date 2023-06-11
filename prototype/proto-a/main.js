@@ -159,15 +159,19 @@ const threeInit = () => {
   scene.add(gridHelper); //helper
 
   //lights
-  scene.add(new THREE.AmbientLight(0x443333));
+  scene.add(new THREE.AmbientLight(0x111111));
 
-  const dirLight1 = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight1.position.set(-1, 0.75, 0.5);
+  const dirLight3 = new THREE.DirectionalLight(0xccffff, 1);
+  dirLight3.position.set(1, 1, 1);
+  scene.add(dirLight3);
+
+  const dirLight1 = new THREE.DirectionalLight(0xffe5cc, 0.5);
+  dirLight1.position.set(-1, 1, 1);
   scene.add(dirLight1);
 
-  const dirLight2 = new THREE.DirectionalLight(0xccccff, 1);
-  dirLight2.position.set(1, 0.75, 0.2);
-  scene.add(dirLight2);
+  // const dirLight2 = new THREE.DirectionalLight(0xccccff, 1);
+  // dirLight2.position.set(1, 0.75, 0.2);
+  // scene.add(dirLight2);
 
   //plane
   const planeGeometry = new THREE.PlaneGeometry(
@@ -310,12 +314,12 @@ function shoot() {
 
   // if (params.rotate) orientation.z = Math.random() * 2 * Math.PI;
 
-  const scale = 0.05;
+  const scale = 0.08;
   size.set(scale, scale, scale);
 
   const material = decalMaterial.clone();
   // material.color.setHex(Math.random() * 0xffffff);
-  material.color.setHex(0xaaaaaa);
+  material.color.setHex(0x808080);
 
   const m = new THREE.Mesh(
     new DecalGeometry(plane, position, orientation, size),
