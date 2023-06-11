@@ -1,66 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="utf-8">
+  <head>
+    <meta charset="utf-8" />
     <title>nengastudio-proto-a</title>
-    <style>
-        body {
-            margin: 0px;
-            font-size: 1vw;
-            line-height: 1;
-            font-family: arial, sans-serif;
-        }
+    <link rel="stylesheet" href="./style.css" />
+  </head>
 
-        p {
-            font-size: 1em;
-        }
+  <body>
+    <div id="threejs" style="touch-action: none"></div>
+  </body>
 
-        @media screen and (min-width:2000px) {
-            body {
-                font-size: 0.75vw;
-            }
-        }
-
-        @media screen and (max-width:1000px) {
-            body {
-                font-size: 2vw;
-            }
-        }
-
-        @media screen and (max-width:500px) {
-            body {
-                font-size: 4vw;
-            }
-        }
-
-
-        #threejs {
-            position: fixed;
-            /* overflow: hidden; */
-            background-color: rgb(78, 78, 78);
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-        }
-    </style>
-</head>
-
-<body>
-    <div id="threejs" style="touch-action: none;"></div>
-</body>
-
-<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
-<script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@latest/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@latest/examples/jsm/"
+  <script
+    async
+    src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"
+  ></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@latest/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@latest/examples/jsm/"
+      }
     }
-  }
-</script>
+  </script>
 
-<script type="module" src="./main.js"></script>
-
+  <script type="module" src="./main.js"></script>
 </html>
