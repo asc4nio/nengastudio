@@ -17,7 +17,7 @@ function init() {
   );
   camera.position.set(0, 0, 5);
 
-  fitCamera();
+  // fitCamera();
 
   // SCENE
   scene = new THREE.Scene();
@@ -64,8 +64,8 @@ const fitCamera = () => {
 };
 
 function onWindowResize() {
-  fitCamera();
-  renderer.setSize(container.offsetWidth, container.offsetHeight);
+  // fitCamera();
+  // renderer.setSize(container.offsetWidth, container.offsetHeight);
   // renderer.setPixelRatio(window.devicePixelRatio);
 }
 window.addEventListener("resize", onWindowResize);
