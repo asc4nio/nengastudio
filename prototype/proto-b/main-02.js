@@ -1,5 +1,5 @@
 let radio, button;
-let paintLayer
+let paintLayer;
 
 let gridRes = 8;
 let gridSize = 24;
@@ -25,7 +25,6 @@ function setup() {
   canvasSize = gridSize * gridRes * pixelSize
   var myCanvas = createCanvas(canvasSize, canvasSize);
   paintLayer = createGraphics(canvasSize, canvasSize);
-  activeBrushLayer = createGraphics(8,8);
 
   myCanvas.parent("p5js");
 
@@ -78,8 +77,6 @@ function draw() {
     (gridRes * gridSize),
     (gridRes * gridSize)
   );
-
-
 
 
   previewItem(getIndex().x, getIndex().y)
