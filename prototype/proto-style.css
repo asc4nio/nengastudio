@@ -1,0 +1,43 @@
+@import './style.css';
+
+body{
+  background-color: aqua;
+}
+
+.controls{
+  position: fixed;
+  top: auto;
+  bottom: 1em;
+  left: 1em;
+  right: 1em;
+  z-index: 999;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  
+  height: 6em;
+
+  padding: 0.5em 1em;
+  background-color: rgba(255, 255, 255, 0.6);
+
+  border-radius: 2em;
+
+}
+
+button{
+  margin: 0;
+  padding: 0.5em 1em;
+
+  background-color: black;
+  color: white;
+  border: none;
+  text-transform: uppercase;
+  border-radius: 0.5em;
+
+  font-size: 1em;
+}
+/* 
+canvas{
+  font-size: 1rem;
+} */

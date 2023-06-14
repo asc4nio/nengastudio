@@ -32,13 +32,16 @@ function setup() {
   background(220);
   noSmooth();
 
+
+  button = createButton("clear");
+  button.mousePressed(clearPaintLayer);
+  button.parent("controls-container");   
+
   radio = createRadio();
   radio.option("1", "brushA");
   radio.option("2", "brushB");
   radio.selected("1");
-
-  button = createButton("clear");
-  button.mousePressed(clearPaintLayer);
+  radio.parent("controls-container");  
 
 
   mousePos = createVector();
@@ -138,7 +141,7 @@ const previewItem = (xIndex, yIndex) => {
 const paintItem = (xIndex, yIndex) => {
   push()
 
-
+  // blendMode(SOFT_LIGHT );
   paintLayer.copy(
     brushes[activeBrush],
     0,

@@ -1,0 +1,64 @@
+body {
+  font-family: arial, sans-serif;
+  font-size: clamp(1rem, 1vw, 2rem);
+
+  margin: 0;
+  padding: 0;
+
+  background-color: antiquewhite;
+}
+@media screen and (min-width: 1920px) {
+  body {
+    font-size: 1vw;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body {
+    font-size: 1rem;
+  }
+}
+
+.svg-container{
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+svg{
+  height: 33vh;
+}
+
+#svg-path {
+  opacity: 0.9;
+  stroke-dasharray: 706.3167114257812;
+  stroke-dashoffset: 706.3167114257812;
+  animation: dash 4s ease-in-out infinite;
+  
+}
+
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 706.3167114257812;
+    opacity: 0;
+  }
+  5%{
+    opacity: 1;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  95%{
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -706.3167114257812;
+    opacity: 0;
+  }
+}

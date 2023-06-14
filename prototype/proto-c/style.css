@@ -1,28 +1,2 @@
-body {
-  font-family: arial, sans-serif;
-  font-size: clamp(1rem, 1vw, 2rem);
+@import '../proto-style.css';
 
-  margin: 0;
-  padding: 0;
-}
-@media screen and (min-width: 1920px) {
-  body {
-    font-size: 1vw;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  body {
-    font-size: 1rem;
-  }
-}
-
-#threejs {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-
-  touch-action: none;
-}

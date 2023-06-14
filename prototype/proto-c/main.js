@@ -19,16 +19,20 @@ function setup() {
 
   image(base, 0, 0);
 
+
+
+  button = createButton("save me");
+  // button.position(0, 0);
+  button.mousePressed(saveImage);
+  button.parent('controls-container')
+
   radio = createRadio();
   radio.option("1", "layerA");
   radio.option("2", "layerB");
   radio.option("3", "Cancella");
   // radio.style('width', '30px');
   radio.selected("1");
-
-  button = createButton("save me");
-  // button.position(0, 0);
-  button.mousePressed(saveImage);
+  radio.parent('controls-container')
 }
 
 function draw() {
