@@ -26,9 +26,9 @@ var pointerState = {
 let lastDecalPos;
 
 const textureLoader = new THREE.TextureLoader();
-const decalDiffuse = textureLoader.load("./assets/test-diffuse.png");
+const decalDiffuse = textureLoader.load("./assets/test-02-diffuse.png");
 decalDiffuse.colorSpace = THREE.SRGBColorSpace;
-const decalNormal = textureLoader.load("./assets/test-normal.jpg");
+const decalNormal = textureLoader.load("./assets/test-02-normal.jpg");
 const decalMaterial = new THREE.MeshStandardMaterial({
   specular: 0x444444,
   map: decalDiffuse,
@@ -138,6 +138,8 @@ const threeInit = () => {
     1000
   );
   camera.position.z = 5;
+
+  pointerState.shootRadius = window.innerHeight / 15
 
   let camDist = camera.position.z - 0;
   let heightToFit = 1; // desired height to fit
@@ -314,12 +316,12 @@ function shoot() {
 
   // if (params.rotate) orientation.z = Math.random() * 2 * Math.PI;
 
-  const scale = 0.08;
+  const scale = 0.05;
   size.set(scale, scale, scale);
 
   const material = decalMaterial.clone();
-  // material.color.setHex(Math.random() * 0xffffff);
-  material.color.setHex(0x808080);
+  material.color.setHex(Math.random() * 0xffffff);
+  // material.color.setHex(0x808080);
 
   const m = new THREE.Mesh(
     new DecalGeometry(plane, position, orientation, size),
