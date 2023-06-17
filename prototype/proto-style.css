@@ -1,27 +1,28 @@
 @import './style.css';
 
-body{
-  background-color: aqua;
-}
 
 .controls{
   position: fixed;
   top: auto;
-  bottom: 1em;
-  left: 1em;
-  right: 1em;
+  bottom: 0.5em;
+  left: 0.5em;
+  right: 0.5em;
   z-index: 999;
-
+/* 
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr; */
+  
+  
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   
-  height: 6em;
+  height: 3em;
 
   padding: 0.5em 1em;
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(0, 0, 0, 0.2);
 
-  border-radius: 2em;
+  border-radius: 1em;
 
 }
 

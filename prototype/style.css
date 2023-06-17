@@ -1,24 +1,50 @@
 body {
   font-family: arial, sans-serif;
-  /* font-size: clamp(1rem, 1vw, 2rem); */
 
-  font-size: 1.5rem;
-
+  font-size: 2rem;
   margin: 0;
   padding: 0;
 }
-/* @media screen and (min-width: 1920px) {
-  body {
-    font-size: 1vw;
-  }
+
+@media screen and (max-width: 480px)  {
 }
 
-@media screen and (max-width: 480px) {
+
+
+
+/* @media screen and (min-width: 1920px)  {
+
   body {
-    font-size: 1rem;
+    font-size: 30px;
   }
 } */
 
-p{
-  font-size: 1em;
+
+h1,h2,h3 {
+  text-transform: uppercase;
+}
+
+a {
+  color: inherit;
+}
+
+/*******************************************************/
+
+.box{
+  background-color: rgb(212, 212, 212);
+  padding: 1em;
+  border-radius: 1em;
+}
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+li{
+  background-color: rgb(155, 155, 155);
+  padding: 1em;
+  border-radius: 0.5em;
+}
+li:hover{
+  background-color: rgb(255, 255, 255);
 }
