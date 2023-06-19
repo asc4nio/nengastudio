@@ -4,44 +4,49 @@ import { DecalGeometry } from "three/addons/geometries/DecalGeometry.js";
 // import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 import { loadDenimMaterial, loadDecalsMaterial } from './loadAssets.js'
-import {initSaveAsImage} from './saveAsImage.js'
+import { initSaveAsImage } from './saveAsImage.js'
 
 
-let scene, camera, renderer;
-let plane;
-let raycaster, helperLine;
-let mouseHelper;
+window.threeState = {
+  denimTextureScale: 0.9,
+  decalsScale: 0.03
+}
+
+
+
+let scene, camera, renderer, raycaster
+// let mouseHelper, helperLine;
 
 /***************************/
 /** pointer */
 
 const mouse = new THREE.Vector2();
 const intersects = [];
-const intersection = {
-  intersects: false,
-  point: new THREE.Vector3(),
-  normal: new THREE.Vector3(),
-};
+
 
 var pointerState = {
   shootRadius: 20,
   isPointerDown: false,
   // canShoot: false,
   actionStartPos: new THREE.Vector2(),
-  shootRadius : window.innerHeight / 15
+  shootRadius: 20,
+  // shootRadius : window.innerHeight / 24
 };
+
 
 /////////////////////////////////////////////////////////////////////////////
 /***************************/
 /** decals */
+let plane;
 
-let lastDecalPos;
+let lastDecalPos = undefined
 let decalsMaterial;
 let decals = [];
 
-const position = new THREE.Vector3();
-const orientation = new THREE.Euler();
-const size = new THREE.Vector3(10, 10, 10);
+
+// const position = new THREE.Vector3();
+// const orientation = new THREE.Euler();
+// const size = new THREE.Vector3(10, 10, 10);
 
 
 
@@ -116,20 +121,19 @@ const threeInit = async () => {
 
 
   //pointer line
-  const geometry = new THREE.BufferGeometry();
-  geometry.setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
-  helperLine = new THREE.Line(geometry, new THREE.LineBasicMaterial());
-  helperLine.visible = false;
-
-  scene.add(helperLine);
+  // const geometry = new THREE.BufferGeometry();
+  // geometry.setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+  // helperLine = new THREE.Line(geometry, new THREE.LineBasicMaterial());
+  // helperLine.visible = false;
+  // scene.add(helperLine);
 
   //mouseHelper
-  mouseHelper = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 10),
-    new THREE.MeshNormalMaterial()
-  );
-  mouseHelper.visible = false;
-  scene.add(mouseHelper);
+  // mouseHelper = new THREE.Mesh(
+  //   new THREE.BoxGeometry(1, 1, 10),
+  //   new THREE.MeshNormalMaterial()
+  // );
+  // mouseHelper.visible = false;
+  // scene.add(mouseHelper);
 
   const setListeners = (() => {
     window.addEventListener("pointerdown", function (event) {
@@ -175,11 +179,12 @@ const threeInit = async () => {
       console.log("pointerup");
 
       pointerState.isPointerDown = false;
+      lastDecalPos = undefined
     });
 
     /****************************************************************************** */
 
-    window.addEventListener("resize", ()=>{
+    window.addEventListener("resize", () => {
       console.log('resizin')
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -187,7 +192,6 @@ const threeInit = async () => {
     });
 
   })()
-
 
 
   threeAnimate();
@@ -201,6 +205,12 @@ const threeAnimate = () => {
 
 /////////////////////////////////////////////////////////////////////////////
 
+let intersection = {
+  intersects: false,
+  point: new THREE.Vector3(),
+  // normal: new THREE.Vector3(),
+};
+
 function checkIntersection(x, y) {
   // console.log("checkIntersection", x, y);
 
@@ -213,10 +223,10 @@ function checkIntersection(x, y) {
   raycaster.intersectObject(plane, false, intersects);
 
   if (intersects.length > 0) {
-    console.log(intersects);
+    // console.log(intersects);
 
     const p = intersects[0].point;
-    mouseHelper.position.copy(p);
+    // mouseHelper.position.copy(p);
     intersection.point.copy(p);
 
     const n = intersects[0].face.normal.clone();
@@ -224,13 +234,14 @@ function checkIntersection(x, y) {
     n.multiplyScalar(10);
     n.add(intersects[0].point);
 
-    intersection.normal.copy(intersects[0].face.normal);
-    mouseHelper.lookAt(n);
+    // intersection.normal.copy(intersects[0].face.normal);
+    // mouseHelper.lookAt(n);
 
-    const positions = helperLine.geometry.attributes.position;
-    positions.setXYZ(0, p.x, p.y, p.z);
-    positions.setXYZ(1, n.x, n.y, n.z);
-    positions.needsUpdate = true;
+    //pointer line update
+    // const positions = helperLine.geometry.attributes.position;
+    // positions.setXYZ(0, p.x, p.y, p.z);
+    // positions.setXYZ(1, n.x, n.y, n.z);
+    // positions.needsUpdate = true;
 
     intersection.intersects = true;
 
@@ -242,26 +253,28 @@ function checkIntersection(x, y) {
 }
 
 function shoot() {
-  let dir;
+  // set orientation
+  const orientation = new THREE.Euler();
+  if (lastDecalPos !== undefined) {
 
-  if (lastDecalPos) {
     let direction = new THREE.Vector3();
     direction.subVectors(lastDecalPos, intersection.point);
 
-    dir = Math.atan2(direction.y, direction.x) + Math.PI / 2;
-    // console.log(dir);
+    let dir = Math.atan2(direction.x, direction.y) + Math.PI / 2;
+    orientation.z = dir;
+
+  } else {
+    orientation.copy(plane.rotation);
   }
 
+  // set position
+  const position = new THREE.Vector3();
   position.copy(intersection.point);
-  orientation.copy(mouseHelper.rotation);
 
-  orientation.z = dir;
+  // set size
+  const size = new THREE.Vector3(threeState.decalsScale, threeState.decalsScale, 1);
 
-  // if (params.rotate) orientation.z = Math.random() * 2 * Math.PI;
-
-  const scale = 0.05;
-  size.set(scale, scale, scale);
-
+  // set material
   const material = decalsMaterial.clone();
   material.color.setHex(Math.random() * 0xffffff);
   // material.color.setHex(0x808080);

@@ -33,8 +33,8 @@ export const loadDenimMaterial = async () => {
     denimDiffuseTexture.wrapS = THREE.RepeatWrapping;
     denimDiffuseTexture.wrapT = THREE.RepeatWrapping;
     denimDiffuseTexture.repeat.set(
-        0.5 * (window.innerWidth / window.innerHeight),
-        0.5
+        threeState.denimTextureScale * (window.innerWidth / window.innerHeight),
+        threeState.denimTextureScale
     );
     denimDiffuseTexture.colorSpace = THREE.SRGBColorSpace;
 
@@ -42,27 +42,27 @@ export const loadDenimMaterial = async () => {
     denimNormalTexture.wrapS = THREE.RepeatWrapping;
     denimNormalTexture.wrapT = THREE.RepeatWrapping;
     denimNormalTexture.repeat.set(
-        0.5 * (window.innerWidth / window.innerHeight),
-        0.5
+        threeState.denimTextureScale * (window.innerWidth / window.innerHeight),
+        threeState.denimTextureScale
     );
 
     const denimRoughnessTexture = await loader.load(denimRoughnessURL);
     denimRoughnessTexture.wrapS = THREE.RepeatWrapping;
     denimRoughnessTexture.wrapT = THREE.RepeatWrapping;
     denimRoughnessTexture.repeat.set(
-        0.5 * (window.innerWidth / window.innerHeight),
-        0.5
+        threeState.denimTextureScale * (window.innerWidth / window.innerHeight),
+        threeState.denimTextureScale
     );
 
     const denimBumpTexture = await loader.load(denimBumpURL);
     denimBumpTexture.wrapS = THREE.RepeatWrapping;
     denimBumpTexture.wrapT = THREE.RepeatWrapping;
     denimBumpTexture.repeat.set(
-        0.5 * (window.innerWidth / window.innerHeight),
-        0.5
+        threeState.denimTextureScale * (window.innerWidth / window.innerHeight),
+        threeState.denimTextureScale
     );
 
-    const denimMaterial = new THREE.MeshStandardMaterial({
+    const denimMaterial = new THREE.MeshPhongMaterial({
         // specular: 0x444444,
         map: denimDiffuseTexture,
         normalMap: denimNormalTexture,
@@ -89,7 +89,7 @@ export const loadDecalsMaterial = async () => {
     const decalNormalTexture = await loader.load(decalNormalURL);
 
 
-    const decalMaterial = new THREE.MeshStandardMaterial({
+    const decalMaterial = new THREE.MeshPhongMaterial({
         specular: 0x444444,
         map: decalDiffuseTexture,
         normalMap: decalNormalTexture,
