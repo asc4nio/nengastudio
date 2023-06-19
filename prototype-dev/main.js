@@ -1,4 +1,5 @@
 import './style.css'
+
 import * as THREE from 'three';
 import { DecalGeometry } from "three/addons/geometries/DecalGeometry.js";
 // import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -10,6 +11,7 @@ import { initSaveAsImage } from './saveAsImage.js'
 /////////////////////////////////////////////////////////////////////////////
 
 window.threeState = {
+  currentDecalMaterial: 0,
   denimTextureScale: 0.8,
   decalsScale: 0.03
 }
@@ -24,7 +26,6 @@ let mouse = new THREE.Vector2();
 var pointerState = {
   shootRadius: 20,
   isPointerDown: false,
-  // canShoot: false,
   actionStartPos: new THREE.Vector2(),
   // shootRadius: 20,
   shootRadius : window.innerHeight / 24
@@ -32,7 +33,7 @@ var pointerState = {
 
 let plane;
 let lastDecalPos = undefined
-let decalsMaterial;
+let decalsMaterials;
 let decals = [];
 
 
@@ -50,7 +51,7 @@ const threeInit = async () => {
 
 
   let denimMaterial = await loadDenimMaterial()
-  decalsMaterial = await loadDecalsMaterial()
+  decalsMaterials = await loadDecalsMaterial()
 
   scene = new THREE.Scene();
   raycaster = new THREE.Raycaster();
@@ -135,6 +136,9 @@ const threeInit = async () => {
       pointerState.isPointerDown = true;
       pointerState.actionStartPos.x = event.pageX;
       pointerState.actionStartPos.y = event.pageY;
+
+      // lastDecalPos = new THREE.Vector3((event.pageX/window.innerWidth)-0.5, (event.pageY/window.innerHeight)-0.5, 0);
+
       // pointerStartX = event.pageX;
       // pointerStartY = event.pageY;
 
@@ -155,17 +159,13 @@ const threeInit = async () => {
           diffY > pointerState.shootRadius
         ) {
           // console.log("pointermove", diffX, diffY);
-          // pointerState.canShoot = true;
-          // console.log("canShoot", pointerState.canShoot);
-
           checkIntersection(event.clientX, event.clientY);
           if (intersection.intersects) shoot();
 
-          // pointerState.canShoot = false;
           pointerState.actionStartPos.x = event.pageX;
           pointerState.actionStartPos.y = event.pageY;
         } else {
-          // console.log("canShoot", pointerState.canShoot);
+          return
         }
       }
     });
@@ -246,8 +246,9 @@ function shoot() {
     let direction = new THREE.Vector3();
     direction.subVectors(lastDecalPos, intersection.point);
 
-    let dir = Math.atan2(direction.x, direction.y) + Math.PI / 2;
+    let dir = (Math.atan2(direction.x, direction.y) + Math.PI / 2)*-1;
     orientation.z = dir;
+    console.log(dir)
 
   } else {
     orientation.copy(plane.rotation);
@@ -256,13 +257,13 @@ function shoot() {
   // set position
   const position = new THREE.Vector3();
   position.copy(intersection.point);
-  console.log(position.x, position.y)
+  // console.log(position.x, position.y)
 
   // set size
   const size = new THREE.Vector3(threeState.decalsScale, threeState.decalsScale, 1);
 
   // set material
-  const material = decalsMaterial.clone();
+  const material = decalsMaterials[threeState.currentDecalMaterial].clone();
   // material.color.setHex(Math.random() * 0xffffff);
   material.color.setHex(0xFFFF00);
 
@@ -283,5 +284,4 @@ function shoot() {
 
 window.addEventListener('load', function(event) {
   threeInit();
-
 });

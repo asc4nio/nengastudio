@@ -22,9 +22,21 @@ import denimBumpURL from '/denim-bump.jpg'
 import denimRoughnessURL from '/denim-roughness.jpg'
 
 
-import decalDiffuseURL from '/test-02-diffuse.png'
-import decalNormalURL from '/test-02-normal.jpg'
+// import decal01DiffuseURL from '/test-02-diffuse.png'
+// import decal01NormalURL from '/test-02-normal.jpg'
+// import decal02DiffuseURL from '/test-01-diffuse.png'
+// import decal02NormalURL from '/test-01-normal.jpg'
 
+let decalsTextures = [
+    [
+        '/test-02-diffuse.png',
+        '/test-02-normal.jpg'
+    ],
+    [
+        '/test-01-diffuse.png',
+        '/test-01-normal.jpg'
+    ]
+]
 
 
 
@@ -83,26 +95,49 @@ export const loadDenimMaterial = async () => {
 
 
 export const loadDecalsMaterial = async () => {
-    const decalDiffuseTexture = await loader.load(decalDiffuseURL);
-    decalDiffuseTexture.colorSpace = THREE.SRGBColorSpace;
+    let decalsMaterials = []
 
-    const decalNormalTexture = await loader.load(decalNormalURL);
+    for(let decalTexture of decalsTextures){
+        const decalDiffuseTexture = await loader.load(decalTexture[0]);
+        decalDiffuseTexture.colorSpace = THREE.SRGBColorSpace;
+        const decalNormalTexture = await loader.load(decalTexture[1]);
 
+        const decalMaterial = new THREE.MeshPhongMaterial({
+            specular: 0x444444,
+            map: decalDiffuseTexture,
+            normalMap: decalNormalTexture,
+            normalScale: new THREE.Vector2(1, 1),
+            shininess: 10,
+            transparent: true,
+            depthTest: true,
+            depthWrite: false,
+            polygonOffset: true,
+            polygonOffsetFactor: -4,
+            wireframe: false,
+        });
+        
+        decalsMaterials = [...decalsMaterials, decalMaterial]
+    }
 
-    const decalMaterial = new THREE.MeshPhongMaterial({
-        specular: 0x444444,
-        map: decalDiffuseTexture,
-        normalMap: decalNormalTexture,
-        normalScale: new THREE.Vector2(1, 1),
-        shininess: 10,
-        transparent: true,
-        depthTest: true,
-        depthWrite: false,
-        polygonOffset: true,
-        polygonOffsetFactor: -4,
-        wireframe: false,
-    });
+    // const decalDiffuseTexture = await loader.load(decalsTextures[1][0]);
+    // decalDiffuseTexture.colorSpace = THREE.SRGBColorSpace;
 
-    return decalMaterial
+    // const decalNormalTexture = await loader.load(decalsTextures[1][1]);
+
+    // const decalMaterial = new THREE.MeshPhongMaterial({
+    //     specular: 0x444444,
+    //     map: decalDiffuseTexture,
+    //     normalMap: decalNormalTexture,
+    //     normalScale: new THREE.Vector2(1, 1),
+    //     shininess: 10,
+    //     transparent: true,
+    //     depthTest: true,
+    //     depthWrite: false,
+    //     polygonOffset: true,
+    //     polygonOffsetFactor: -4,
+    //     wireframe: false,
+    // });
+
+    return decalsMaterials
 }
 
