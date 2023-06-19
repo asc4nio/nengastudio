@@ -62,7 +62,7 @@ export const loadDenimMaterial = async () => {
         threeState.denimTextureScale
     );
 
-    const denimMaterial = new THREE.MeshPhongMaterial({
+    const denimMaterial = new THREE.MeshPhysicalMaterial({
         // specular: 0x444444,
         map: denimDiffuseTexture,
         normalMap: denimNormalTexture,

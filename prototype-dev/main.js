@@ -7,48 +7,43 @@ import { loadDenimMaterial, loadDecalsMaterial } from './loadAssets.js'
 import { initSaveAsImage } from './saveAsImage.js'
 
 
+/////////////////////////////////////////////////////////////////////////////
+
 window.threeState = {
-  denimTextureScale: 0.9,
+  denimTextureScale: 0.8,
   decalsScale: 0.03
 }
 
+/////////////////////////////////////////////////////////////////////////////
 
 
 let scene, camera, renderer, raycaster
-// let mouseHelper, helperLine;
-
-/***************************/
-/** pointer */
-
-const mouse = new THREE.Vector2();
-const intersects = [];
-
+// let helperLine;
+let mouse = new THREE.Vector2();
 
 var pointerState = {
   shootRadius: 20,
   isPointerDown: false,
   // canShoot: false,
   actionStartPos: new THREE.Vector2(),
-  shootRadius: 20,
-  // shootRadius : window.innerHeight / 24
+  // shootRadius: 20,
+  shootRadius : window.innerHeight / 24
 };
 
-
-/////////////////////////////////////////////////////////////////////////////
-/***************************/
-/** decals */
 let plane;
-
 let lastDecalPos = undefined
 let decalsMaterial;
 let decals = [];
 
 
-// const position = new THREE.Vector3();
-// const orientation = new THREE.Euler();
-// const size = new THREE.Vector3(10, 10, 10);
+let intersection = {
+  intersects: false,
+  point: new THREE.Vector3()
+};
+let intersects = [];
 
 
+/////////////////////////////////////////////////////////////////////////////
 
 const threeInit = async () => {
   console.log('threeInit')
@@ -205,12 +200,6 @@ const threeAnimate = () => {
 
 /////////////////////////////////////////////////////////////////////////////
 
-let intersection = {
-  intersects: false,
-  point: new THREE.Vector3(),
-  // normal: new THREE.Vector3(),
-};
-
 function checkIntersection(x, y) {
   // console.log("checkIntersection", x, y);
 
@@ -226,7 +215,6 @@ function checkIntersection(x, y) {
     // console.log(intersects);
 
     const p = intersects[0].point;
-    // mouseHelper.position.copy(p);
     intersection.point.copy(p);
 
     const n = intersects[0].face.normal.clone();
@@ -234,8 +222,6 @@ function checkIntersection(x, y) {
     n.multiplyScalar(10);
     n.add(intersects[0].point);
 
-    // intersection.normal.copy(intersects[0].face.normal);
-    // mouseHelper.lookAt(n);
 
     //pointer line update
     // const positions = helperLine.geometry.attributes.position;
@@ -270,14 +256,15 @@ function shoot() {
   // set position
   const position = new THREE.Vector3();
   position.copy(intersection.point);
+  console.log(position.x, position.y)
 
   // set size
   const size = new THREE.Vector3(threeState.decalsScale, threeState.decalsScale, 1);
 
   // set material
   const material = decalsMaterial.clone();
-  material.color.setHex(Math.random() * 0xffffff);
-  // material.color.setHex(0x808080);
+  // material.color.setHex(Math.random() * 0xffffff);
+  material.color.setHex(0xFFFF00);
 
   const m = new THREE.Mesh(
     new DecalGeometry(plane, position, orientation, size),
@@ -294,5 +281,7 @@ function shoot() {
 
 
 
+window.addEventListener('load', function(event) {
+  threeInit();
 
-threeInit();
+});
