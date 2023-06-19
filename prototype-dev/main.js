@@ -1,36 +1,23 @@
 import './style.css'
-
 import * as THREE from 'three';
 // import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { DecalGeometry } from "three/addons/geometries/DecalGeometry.js";
 
-import { loadDenim } from './loadDenim.js'
 
-/******************************* */
+import denimDiffuseURL from '/denim-diffuse.jpg'
+
+
+import decalDiffuseURL from '/test-02-diffuse.png'
+
+
 
 
 let scene, camera, renderer;
+let plane;
+let raycaster, helperLine;
+let mouseHelper;
 
-window.threeParams = {
-  aspectRatio: 9 / 16,
-  renderHeight: window.innerHeight,
-  planeScale: 0.66
-}
-threeParams.renderWidth = Math.round(threeParams.renderHeight * threeParams.aspectRatio)
-/******************************* */
-
-let raycaster, helperLine, mouseHelper;
-
-// const mouse = new THREE.Vector2();
-
-var pointerState = {
-  currentPos: new THREE.Vector2(),
-  shootRadius: 20,
-  isPointerDown: false,
-  // canShoot: false,
-  actionStartPos: new THREE.Vector2(),
-};
-
+const mouse = new THREE.Vector2();
 const intersects = [];
 const intersection = {
   intersects: false,
@@ -38,79 +25,187 @@ const intersection = {
   normal: new THREE.Vector3(),
 };
 
-/******************************* */
+var pointerState = {
+  shootRadius: 20,
+  isPointerDown: false,
+  // canShoot: false,
+  actionStartPos: new THREE.Vector2(),
+};
 
+/////////////////////////////////////////////////////////////////////////////
 
+let lastDecalPos;
+
+const textureLoader = new THREE.TextureLoader();
+const decalDiffuse = textureLoader.load(decalDiffuseURL);
+decalDiffuse.colorSpace = THREE.SRGBColorSpace;
+// const decalNormal = textureLoader.load("./assets/test-02-normal.jpg");
+const decalMaterial = new THREE.MeshStandardMaterial({
+  specular: 0x444444,
+  map: decalDiffuse,
+  // normalMap: decalNormal,
+  normalScale: new THREE.Vector2(1, 1),
+  shininess: 10,
+  transparent: true,
+  depthTest: true,
+  depthWrite: false,
+  polygonOffset: true,
+  polygonOffsetFactor: -4,
+  wireframe: false,
+});
+
+let decals = [];
+
+const position = new THREE.Vector3();
+const orientation = new THREE.Euler();
+const size = new THREE.Vector3(10, 10, 10);
+
+/////////////////////////////////////////////////////////////////////////////
+
+// document.getElementById("save-button").addEventListener("click", () => {
+//   saveAsImage();
+// });
+
+// function saveAsImage() {
+//   let link = document.createElement("a");
+//   link.download = "image.png";
+
+//   renderer.domElement.toBlob(function (blob) {
+//     link.href = URL.createObjectURL(blob);
+//     link.click();
+//   }, "image/png");
+// }
+
+/////////////////////////////////////////////////////////////////////////////
+
+// const denimNormalTexture = new THREE.TextureLoader().load(
+//   "./assets/denim-normal.jpg"
+// );
+// denimNormalTexture.wrapS = THREE.RepeatWrapping;
+// denimNormalTexture.wrapT = THREE.RepeatWrapping;
+// denimNormalTexture.repeat.set(
+//   0.5 * (window.innerWidth / window.innerHeight),
+//   0.5
+// );
+
+// const denimRoughnessTexture = new THREE.TextureLoader().load(
+//   "./assets/denim-roughness.jpg"
+// );
+// denimRoughnessTexture.wrapS = THREE.RepeatWrapping;
+// denimRoughnessTexture.wrapT = THREE.RepeatWrapping;
+// denimRoughnessTexture.repeat.set(
+//   0.5 * (window.innerWidth / window.innerHeight),
+//   0.5
+// );
+
+// const denimBumpTexture = new THREE.TextureLoader().load(
+//   "./assets/denim-bump.jpg"
+// );
+// denimBumpTexture.wrapS = THREE.RepeatWrapping;
+// denimBumpTexture.wrapT = THREE.RepeatWrapping;
+// denimBumpTexture.repeat.set(
+//   0.5 * (window.innerWidth / window.innerHeight),
+//   0.5
+// );
+
+const denimDiffuseTexture = new THREE.TextureLoader().load(denimDiffuseURL);
+denimDiffuseTexture.wrapS = THREE.RepeatWrapping;
+denimDiffuseTexture.wrapT = THREE.RepeatWrapping;
+denimDiffuseTexture.repeat.set(
+  0.5 * (window.innerWidth / window.innerHeight),
+  0.5
+);
+denimDiffuseTexture.colorSpace = THREE.SRGBColorSpace;
+
+const denimMaterial = new THREE.MeshStandardMaterial({
+  // specular: 0x444444,
+  map: denimDiffuseTexture,
+  // normalMap: denimNormalTexture,
+  normalScale: new THREE.Vector2(1, 1),
+  // roughnessMap: denimRoughnessTexture,
+  // bumpMap: denimBumpTexture,
+  // shininess: 30,
+  transparent: true,
+  depthTest: true,
+  depthWrite: false,
+  polygonOffset: true,
+  // polygonOffsetFactor: -4,
+  wireframe: false,
+});
+
+/////////////////////////////////////////////////////////////////////////////
 
 const threeInit = () => {
-
   scene = new THREE.Scene();
   raycaster = new THREE.Raycaster();
 
-
-  const setCamera = (() => {
-
-    let w = threeParams.renderHeight * threeParams.aspectRatio;
-    let h = threeParams.renderHeight;
-    let viewSize = 1;
-
-    let _viewport = {
-      viewSize: viewSize,
-      aspectRatio: threeParams.aspectRatio,
-      left: (-threeParams.aspectRatio * viewSize) / 2,
-      right: (threeParams.aspectRatio * viewSize) / 2,
-      top: viewSize / 2,
-      bottom: -viewSize / 2,
-      near: -100,
-      far: 100
-    }
-
-    camera = new THREE.OrthographicCamera(
-      _viewport.left,
-      _viewport.right,
-      _viewport.top,
-      _viewport.bottom,
-      _viewport.near,
-      _viewport.far
-    );
-
-    // camera.position.z=-1
-
-    camera.updateProjectionMatrix()
-
-  })()
-  const setRenderer = (() => {
-    renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      preserveDrawingBuffer: true,
-    });
-
-    renderer.setSize(threeParams.renderWidth, threeParams.renderHeight);
-    document.body.appendChild(renderer.domElement);
-  })()
-
-  const setPlane = (async () => {
-    //gridHelper
-    let gridHelper = new THREE.GridHelper(1, 4, 0x888888, 0x444444);
-    gridHelper.rotation.x = Math.PI * 0.5;
-    gridHelper.scale.x = threeParams.aspectRatio
-    gridHelper.position.z = 0.01
-    scene.add(gridHelper); //helper
-
-    loadDenim(scene)
-
-  })()
+  //camera
+  camera = new THREE.PerspectiveCamera(
+    30,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+  );
+  camera.position.z = 5;
 
   pointerState.shootRadius = window.innerHeight / 15
+
+  let camDist = camera.position.z - 0;
+  let heightToFit = 1; // desired height to fit
+  camera.fov = 2 * Math.atan(heightToFit / (2 * camDist)) * (180 / Math.PI);
+  camera.updateProjectionMatrix();
+
+  //renderer
+  renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    preserveDrawingBuffer: true,
+  });
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  //gridHelper
+  let gridHelper = new THREE.GridHelper(4, 4, 0x888888, 0x444444);
+  gridHelper.rotation.x = Math.PI * 0.5;
+  scene.add(gridHelper); //helper
+
+  //lights
+  scene.add(new THREE.AmbientLight(0x111111));
+
+  const dirLight3 = new THREE.DirectionalLight(0xccffff, 1);
+  dirLight3.position.set(1, 1, 1);
+  scene.add(dirLight3);
+
+  const dirLight1 = new THREE.DirectionalLight(0xffe5cc, 0.5);
+  dirLight1.position.set(-1, 1, 1);
+  scene.add(dirLight1);
+
+  // const dirLight2 = new THREE.DirectionalLight(0xccccff, 1);
+  // dirLight2.position.set(1, 0.75, 0.2);
+  // scene.add(dirLight2);
+
+  //plane
+  const planeGeometry = new THREE.PlaneGeometry(
+    1 * (window.innerWidth / window.innerHeight),
+    1
+  );
+  const planeMaterial = new THREE.MeshBasicMaterial({
+    color: 0x0000ff,
+    side: THREE.DoubleSide,
+  });
+  plane = new THREE.Mesh(planeGeometry, denimMaterial);
+  // plane.scale.set(0.9, 0.9, 1);
+  scene.add(plane);
 
   //pointer line
   const geometry = new THREE.BufferGeometry();
   geometry.setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
   helperLine = new THREE.Line(geometry, new THREE.LineBasicMaterial());
+  helperLine.visible = false;
+
   scene.add(helperLine);
 
-
-  mouseHelper
+  //mouseHelper
   mouseHelper = new THREE.Mesh(
     new THREE.BoxGeometry(1, 1, 10),
     new THREE.MeshNormalMaterial()
@@ -118,218 +213,145 @@ const threeInit = () => {
   mouseHelper.visible = false;
   scene.add(mouseHelper);
 
+  window.addEventListener("pointerdown", function (event) {
+    pointerState.isPointerDown = true;
+    pointerState.actionStartPos.x = event.pageX;
+    pointerState.actionStartPos.y = event.pageY;
+    // pointerStartX = event.pageX;
+    // pointerStartY = event.pageY;
 
-  const addListeners = (() => {
-    renderer.domElement.addEventListener("pointerdown", function (event) {
-      /*
-      pointerState.isPointerDown = true;
-      pointerState.actionStartPos.x = event.pageX;
-      pointerState.actionStartPos.y = event.pageY;
-      // pointerStartX = event.pageX;
-      // pointerStartY = event.pageY;
+    console.log(
+      "pointerdown",
+      pointerState.actionStartPos.x,
+      pointerState.actionStartPos.y
+    );
+  });
 
-      console.log(
-        "pointerdown",
-        pointerState.actionStartPos.x,
-        pointerState.actionStartPos.y
-      );
-      */
-    });
+  window.addEventListener("pointermove", (event) => {
+    if (pointerState.isPointerDown) {
+      let diffX = Math.abs(event.pageX - pointerState.actionStartPos.x);
+      let diffY = Math.abs(event.pageY - pointerState.actionStartPos.y);
 
-    renderer.domElement.addEventListener("pointermove", (event) => {
-      // console.log(event)
+      if (
+        diffX > pointerState.shootRadius ||
+        diffY > pointerState.shootRadius
+      ) {
+        // console.log("pointermove", diffX, diffY);
+        // pointerState.canShoot = true;
+        // console.log("canShoot", pointerState.canShoot);
 
-      let eX = Math.round(event.offsetX)
-      let eY = Math.round(event.offsetY)
+        checkIntersection(event.clientX, event.clientY);
+        if (intersection.intersects) shoot();
 
-      if (eX > 0  && eX < threeParams.renderWidth && eY>0 && eY < threeParams.renderHeight){
-        checkIntersection(eX, eY);
+        // pointerState.canShoot = false;
+        pointerState.actionStartPos.x = event.pageX;
+        pointerState.actionStartPos.y = event.pageY;
+      } else {
+        // console.log("canShoot", pointerState.canShoot);
       }
+    }
+  });
 
+  window.addEventListener("pointerup", function (event) {
+    console.log("pointerup");
 
-      
-
-      // console.log(event.pageX, event.pageY)
-      /*
-      if (pointerState.isPointerDown) {
-        let diffX = Math.abs(event.pageX - pointerState.actionStartPos.x);
-        let diffY = Math.abs(event.pageY - pointerState.actionStartPos.y);
-
-        if (
-          diffX > pointerState.shootRadius ||
-          diffY > pointerState.shootRadius
-        ) {
-          // console.log("pointermove", diffX, diffY);
-          // pointerState.canShoot = true;
-          // console.log("canShoot", pointerState.canShoot);
-
-          checkIntersection(event.clientX, event.clientY);
-          if (intersection.intersects) shoot();
-          // pointerState.canShoot = false;
-          pointerState.actionStartPos.x = event.pageX;
-          pointerState.actionStartPos.y = event.pageY;
-        } else {
-          // console.log("canShoot", pointerState.canShoot);
-        }
-      }
-      */
-    });
-
-    renderer.domElement.addEventListener("pointerup", function (event) {
-      console.log("pointerup");
-
-      // pointerState.isPointerDown = false;
-    });
-  })()
-
-
-
-  const ambientLight = new THREE.AmbientLight(0xDDDDDD); // soft white light
-  scene.add(ambientLight);
-
+    pointerState.isPointerDown = false;
+  });
 
   threeAnimate();
-}
+};
 
 const threeAnimate = () => {
   renderer.render(scene, camera);
 
   requestAnimationFrame(threeAnimate);
-}
+};
 
-
-threeInit()
-
-/******************************* */
-
-
-function onWindowResize() {
-  threeParams.renderHeight = window.innerHeight
-  threeParams.renderWidth = Math.round(threeParams.renderHeight * threeParams.aspectRatio)
-  // console.log(threeParams.renderHeight);
-
-  let w = threeParams.renderWidth ;
-  let h = threeParams.renderHeight;
-  let viewSize = 1;
-
-  let _viewport = {
-    viewSize: viewSize,
-    aspectRatio: threeParams.aspectRatio,
-    left: (-threeParams.aspectRatio * viewSize) / 2,
-    right: (threeParams.aspectRatio * viewSize) / 2,
-    top: viewSize / 2,
-    bottom: -viewSize / 2,
-    near: -100,
-    far: 100
-  }
-
-  _viewport.left,
-    _viewport.right,
-    _viewport.top,
-    _viewport.bottom,
-    _viewport.near,
-    _viewport.far
-
-  camera.left = _viewport.left;
-  camera.right = _viewport.right;
-
-  camera.updateProjectionMatrix();
-
-  renderer.setSize(threeParams.renderWidth, threeParams.renderHeight);
-}
-window.addEventListener('resize', onWindowResize);
-
-/******************************* */
+/////////////////////////////////////////////////////////////////////////////
 
 function checkIntersection(x, y) {
-  console.log("checkIntersection", x, y);
+  // console.log("checkIntersection", x, y);
 
   if (plane === undefined) return;
 
-  pointerState.currentPos.x = (x / window.innerWidth) * 2 - 1;
-  pointerState.currentPos.y = -(y / window.innerHeight) * 2 + 1;
+  mouse.x = (x / window.innerWidth) * 2 - 1;
+  mouse.y = -(y / window.innerHeight) * 2 + 1;
 
-  raycaster.setFromCamera(pointerState.currentPos, camera);
+  raycaster.setFromCamera(mouse, camera);
   raycaster.intersectObject(plane, false, intersects);
 
   if (intersects.length > 0) {
-
     console.log(intersects);
 
+    const p = intersects[0].point;
+    mouseHelper.position.copy(p);
+    intersection.point.copy(p);
 
-    // const p = intersects[0].point;
-    // mouseHelper.position.copy(p);
-    // intersection.point.copy(p);
+    const n = intersects[0].face.normal.clone();
+    n.transformDirection(plane.matrixWorld);
+    n.multiplyScalar(10);
+    n.add(intersects[0].point);
 
-    // const n = intersects[0].face.normal.clone();
-    // n.transformDirection(plane.matrixWorld);
-    // n.multiplyScalar(10);
-    // n.add(intersects[0].point);
+    intersection.normal.copy(intersects[0].face.normal);
+    mouseHelper.lookAt(n);
 
-    // intersection.normal.copy(intersects[0].face.normal);
-    // mouseHelper.lookAt(n);
+    const positions = helperLine.geometry.attributes.position;
+    positions.setXYZ(0, p.x, p.y, p.z);
+    positions.setXYZ(1, n.x, n.y, n.z);
+    positions.needsUpdate = true;
 
-    // const positions = helperLine.geometry.attributes.position;
-    // positions.setXYZ(0, p.x, p.y, p.z);
-    // positions.setXYZ(1, n.x, n.y, n.z);
-    // positions.needsUpdate = true;
-    
-
-    // intersection.intersects = true;
+    intersection.intersects = true;
 
     intersects.length = 0;
   } else {
     // console.log(intersects)
     intersection.intersects = false;
   }
-
-
 }
 
+function shoot() {
+  let dir;
 
-// function fitCamera(camera, contWidth, contHeight) {
-//   console.log('fitCamera')
-//   camera.aspect = contWidth / contHeight;
+  if (lastDecalPos) {
+    let direction = new THREE.Vector3();
+    direction.subVectors(lastDecalPos, intersection.point);
 
-//   if (camera.aspect > threeParams.fitCameraAspectRatio) {
-//     // window too large
-//     camera.fov = threeParams.fov;
+    dir = Math.atan2(direction.y, direction.x) + Math.PI / 2;
+    console.log(dir);
+  }
 
+  position.copy(intersection.point);
+  orientation.copy(mouseHelper.rotation);
 
-//   } else {
-//     // window too narrow
-//     const cameraHeight = Math.tan(THREE.MathUtils.degToRad(threeParams.fov / 2));
-//     const ratio = camera.aspect / threeParams.fitCameraAspectRatio;
-//     const newCameraHeight = cameraHeight / ratio;
-//     camera.fov = THREE.MathUtils.radToDeg(Math.atan(newCameraHeight)) * 2;
-//   }
-//   camera.updateProjectionMatrix();
-// };
+  orientation.z = dir;
 
+  // if (params.rotate) orientation.z = Math.random() * 2 * Math.PI;
 
-/*
-import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
+  const scale = 0.05;
+  size.set(scale, scale, scale);
 
-document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Hello Vite!</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`
+  const material = decalMaterial.clone();
+  material.color.setHex(Math.random() * 0xffffff);
+  // material.color.setHex(0x808080);
 
-setupCounter(document.querySelector('#counter'))
-*/
+  const m = new THREE.Mesh(
+    new DecalGeometry(plane, position, orientation, size),
+    material
+  );
+
+  decals.push(m);
+  scene.add(m);
+
+  lastDecalPos = position;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+window.addEventListener("resize", onWindowResize);
+
+threeInit();
