@@ -99,7 +99,7 @@ export const loadDenim = (scene) => {
             color: 0x0000ff,
             side: THREE.DoubleSide,
         });
-        const plane = new THREE.Mesh(planeGeometry, denimMaterial);
+        window.plane = new THREE.Mesh(planeGeometry, denimMaterial);
         plane.scale.set(threeParams.planeScale, threeParams.planeScale, 1);
         scene.add(plane);
 
