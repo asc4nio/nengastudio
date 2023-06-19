@@ -1,21 +1,19 @@
 import './style.css'
 import * as THREE from 'three';
-// import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { DecalGeometry } from "three/addons/geometries/DecalGeometry.js";
+// import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-
-import denimDiffuseURL from '/denim-diffuse.jpg'
-
-
-import decalDiffuseURL from '/test-02-diffuse.png'
-
-
+import { loadDenimMaterial, loadDecalsMaterial } from './loadAssets.js'
+import {initSaveAsImage} from './saveAsImage.js'
 
 
 let scene, camera, renderer;
 let plane;
 let raycaster, helperLine;
 let mouseHelper;
+
+/***************************/
+/** pointer */
 
 const mouse = new THREE.Vector2();
 const intersects = [];
@@ -30,172 +28,92 @@ var pointerState = {
   isPointerDown: false,
   // canShoot: false,
   actionStartPos: new THREE.Vector2(),
+  shootRadius : window.innerHeight / 15
 };
 
 /////////////////////////////////////////////////////////////////////////////
+/***************************/
+/** decals */
 
 let lastDecalPos;
-
-const textureLoader = new THREE.TextureLoader();
-const decalDiffuse = textureLoader.load(decalDiffuseURL);
-decalDiffuse.colorSpace = THREE.SRGBColorSpace;
-// const decalNormal = textureLoader.load("./assets/test-02-normal.jpg");
-const decalMaterial = new THREE.MeshStandardMaterial({
-  specular: 0x444444,
-  map: decalDiffuse,
-  // normalMap: decalNormal,
-  normalScale: new THREE.Vector2(1, 1),
-  shininess: 10,
-  transparent: true,
-  depthTest: true,
-  depthWrite: false,
-  polygonOffset: true,
-  polygonOffsetFactor: -4,
-  wireframe: false,
-});
-
+let decalsMaterial;
 let decals = [];
 
 const position = new THREE.Vector3();
 const orientation = new THREE.Euler();
 const size = new THREE.Vector3(10, 10, 10);
 
-/////////////////////////////////////////////////////////////////////////////
 
-// document.getElementById("save-button").addEventListener("click", () => {
-//   saveAsImage();
-// });
 
-// function saveAsImage() {
-//   let link = document.createElement("a");
-//   link.download = "image.png";
+const threeInit = async () => {
+  console.log('threeInit')
 
-//   renderer.domElement.toBlob(function (blob) {
-//     link.href = URL.createObjectURL(blob);
-//     link.click();
-//   }, "image/png");
-// }
 
-/////////////////////////////////////////////////////////////////////////////
+  let denimMaterial = await loadDenimMaterial()
+  decalsMaterial = await loadDecalsMaterial()
 
-// const denimNormalTexture = new THREE.TextureLoader().load(
-//   "./assets/denim-normal.jpg"
-// );
-// denimNormalTexture.wrapS = THREE.RepeatWrapping;
-// denimNormalTexture.wrapT = THREE.RepeatWrapping;
-// denimNormalTexture.repeat.set(
-//   0.5 * (window.innerWidth / window.innerHeight),
-//   0.5
-// );
-
-// const denimRoughnessTexture = new THREE.TextureLoader().load(
-//   "./assets/denim-roughness.jpg"
-// );
-// denimRoughnessTexture.wrapS = THREE.RepeatWrapping;
-// denimRoughnessTexture.wrapT = THREE.RepeatWrapping;
-// denimRoughnessTexture.repeat.set(
-//   0.5 * (window.innerWidth / window.innerHeight),
-//   0.5
-// );
-
-// const denimBumpTexture = new THREE.TextureLoader().load(
-//   "./assets/denim-bump.jpg"
-// );
-// denimBumpTexture.wrapS = THREE.RepeatWrapping;
-// denimBumpTexture.wrapT = THREE.RepeatWrapping;
-// denimBumpTexture.repeat.set(
-//   0.5 * (window.innerWidth / window.innerHeight),
-//   0.5
-// );
-
-const denimDiffuseTexture = new THREE.TextureLoader().load(denimDiffuseURL);
-denimDiffuseTexture.wrapS = THREE.RepeatWrapping;
-denimDiffuseTexture.wrapT = THREE.RepeatWrapping;
-denimDiffuseTexture.repeat.set(
-  0.5 * (window.innerWidth / window.innerHeight),
-  0.5
-);
-denimDiffuseTexture.colorSpace = THREE.SRGBColorSpace;
-
-const denimMaterial = new THREE.MeshStandardMaterial({
-  // specular: 0x444444,
-  map: denimDiffuseTexture,
-  // normalMap: denimNormalTexture,
-  normalScale: new THREE.Vector2(1, 1),
-  // roughnessMap: denimRoughnessTexture,
-  // bumpMap: denimBumpTexture,
-  // shininess: 30,
-  transparent: true,
-  depthTest: true,
-  depthWrite: false,
-  polygonOffset: true,
-  // polygonOffsetFactor: -4,
-  wireframe: false,
-});
-
-/////////////////////////////////////////////////////////////////////////////
-
-const threeInit = () => {
   scene = new THREE.Scene();
   raycaster = new THREE.Raycaster();
 
-  //camera
-  camera = new THREE.PerspectiveCamera(
-    30,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
-  camera.position.z = 5;
+  const setCamera = (() => {
+    camera = new THREE.PerspectiveCamera(
+      30,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    camera.position.z = 5;
+    let camDist = camera.position.z - 0;
+    let heightToFit = 1; // desired height to fit
+    camera.fov = 2 * Math.atan(heightToFit / (2 * camDist)) * (180 / Math.PI);
+    camera.updateProjectionMatrix();
 
-  pointerState.shootRadius = window.innerHeight / 15
+  })()
 
-  let camDist = camera.position.z - 0;
-  let heightToFit = 1; // desired height to fit
-  camera.fov = 2 * Math.atan(heightToFit / (2 * camDist)) * (180 / Math.PI);
-  camera.updateProjectionMatrix();
+  const setRenderer = (() => {
+    renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      preserveDrawingBuffer: true,
+    });
 
-  //renderer
-  renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    preserveDrawingBuffer: true,
-  });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+    initSaveAsImage('save-button', renderer)
 
-  //gridHelper
-  let gridHelper = new THREE.GridHelper(4, 4, 0x888888, 0x444444);
-  gridHelper.rotation.x = Math.PI * 0.5;
-  scene.add(gridHelper); //helper
+  })()
 
-  //lights
-  scene.add(new THREE.AmbientLight(0x111111));
+  const setLights = (() => {
+    scene.add(new THREE.AmbientLight(0x111111));
 
-  const dirLight3 = new THREE.DirectionalLight(0xccffff, 1);
-  dirLight3.position.set(1, 1, 1);
-  scene.add(dirLight3);
+    const dirLight3 = new THREE.DirectionalLight(0xccffff, 1);
+    dirLight3.position.set(1, 1, 1);
+    scene.add(dirLight3);
 
-  const dirLight1 = new THREE.DirectionalLight(0xffe5cc, 0.5);
-  dirLight1.position.set(-1, 1, 1);
-  scene.add(dirLight1);
+    const dirLight1 = new THREE.DirectionalLight(0xffe5cc, 0.5);
+    dirLight1.position.set(-1, 1, 1);
+    scene.add(dirLight1);
 
-  // const dirLight2 = new THREE.DirectionalLight(0xccccff, 1);
-  // dirLight2.position.set(1, 0.75, 0.2);
-  // scene.add(dirLight2);
+    // const dirLight2 = new THREE.DirectionalLight(0xccccff, 1);
+    // dirLight2.position.set(1, 0.75, 0.2);
+    // scene.add(dirLight2);
+  })()
 
-  //plane
-  const planeGeometry = new THREE.PlaneGeometry(
-    1 * (window.innerWidth / window.innerHeight),
-    1
-  );
-  const planeMaterial = new THREE.MeshBasicMaterial({
-    color: 0x0000ff,
-    side: THREE.DoubleSide,
-  });
-  plane = new THREE.Mesh(planeGeometry, denimMaterial);
-  // plane.scale.set(0.9, 0.9, 1);
-  scene.add(plane);
+  const setPlane = (() => {
+    const planeGeometry = new THREE.PlaneGeometry(
+      1 * (window.innerWidth / window.innerHeight),
+      1
+    );
+    const planeMaterial = new THREE.MeshBasicMaterial({
+      color: 0x0000ff,
+      side: THREE.DoubleSide,
+    });
+    plane = new THREE.Mesh(planeGeometry, denimMaterial);
+    // plane.scale.set(0.9, 0.9, 1);
+    scene.add(plane);
+
+  })()
+
 
   //pointer line
   const geometry = new THREE.BufferGeometry();
@@ -213,50 +131,64 @@ const threeInit = () => {
   mouseHelper.visible = false;
   scene.add(mouseHelper);
 
-  window.addEventListener("pointerdown", function (event) {
-    pointerState.isPointerDown = true;
-    pointerState.actionStartPos.x = event.pageX;
-    pointerState.actionStartPos.y = event.pageY;
-    // pointerStartX = event.pageX;
-    // pointerStartY = event.pageY;
+  const setListeners = (() => {
+    window.addEventListener("pointerdown", function (event) {
+      pointerState.isPointerDown = true;
+      pointerState.actionStartPos.x = event.pageX;
+      pointerState.actionStartPos.y = event.pageY;
+      // pointerStartX = event.pageX;
+      // pointerStartY = event.pageY;
 
-    console.log(
-      "pointerdown",
-      pointerState.actionStartPos.x,
-      pointerState.actionStartPos.y
-    );
-  });
+      console.log(
+        "pointerdown",
+        pointerState.actionStartPos.x,
+        pointerState.actionStartPos.y
+      );
+    });
 
-  window.addEventListener("pointermove", (event) => {
-    if (pointerState.isPointerDown) {
-      let diffX = Math.abs(event.pageX - pointerState.actionStartPos.x);
-      let diffY = Math.abs(event.pageY - pointerState.actionStartPos.y);
+    window.addEventListener("pointermove", (event) => {
+      if (pointerState.isPointerDown) {
+        let diffX = Math.abs(event.pageX - pointerState.actionStartPos.x);
+        let diffY = Math.abs(event.pageY - pointerState.actionStartPos.y);
 
-      if (
-        diffX > pointerState.shootRadius ||
-        diffY > pointerState.shootRadius
-      ) {
-        // console.log("pointermove", diffX, diffY);
-        // pointerState.canShoot = true;
-        // console.log("canShoot", pointerState.canShoot);
+        if (
+          diffX > pointerState.shootRadius ||
+          diffY > pointerState.shootRadius
+        ) {
+          // console.log("pointermove", diffX, diffY);
+          // pointerState.canShoot = true;
+          // console.log("canShoot", pointerState.canShoot);
 
-        checkIntersection(event.clientX, event.clientY);
-        if (intersection.intersects) shoot();
+          checkIntersection(event.clientX, event.clientY);
+          if (intersection.intersects) shoot();
 
-        // pointerState.canShoot = false;
-        pointerState.actionStartPos.x = event.pageX;
-        pointerState.actionStartPos.y = event.pageY;
-      } else {
-        // console.log("canShoot", pointerState.canShoot);
+          // pointerState.canShoot = false;
+          pointerState.actionStartPos.x = event.pageX;
+          pointerState.actionStartPos.y = event.pageY;
+        } else {
+          // console.log("canShoot", pointerState.canShoot);
+        }
       }
-    }
-  });
+    });
 
-  window.addEventListener("pointerup", function (event) {
-    console.log("pointerup");
+    window.addEventListener("pointerup", function (event) {
+      console.log("pointerup");
 
-    pointerState.isPointerDown = false;
-  });
+      pointerState.isPointerDown = false;
+    });
+
+    /****************************************************************************** */
+
+    window.addEventListener("resize", ()=>{
+      console.log('resizin')
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+  })()
+
+
 
   threeAnimate();
 };
@@ -317,7 +249,7 @@ function shoot() {
     direction.subVectors(lastDecalPos, intersection.point);
 
     dir = Math.atan2(direction.y, direction.x) + Math.PI / 2;
-    console.log(dir);
+    // console.log(dir);
   }
 
   position.copy(intersection.point);
@@ -330,7 +262,7 @@ function shoot() {
   const scale = 0.05;
   size.set(scale, scale, scale);
 
-  const material = decalMaterial.clone();
+  const material = decalsMaterial.clone();
   material.color.setHex(Math.random() * 0xffffff);
   // material.color.setHex(0x808080);
 
@@ -347,11 +279,7 @@ function shoot() {
 
 /////////////////////////////////////////////////////////////////////////////
 
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
-window.addEventListener("resize", onWindowResize);
+
+
 
 threeInit();
