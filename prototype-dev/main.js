@@ -12,8 +12,33 @@ import { initSaveAsImage } from './saveAsImage.js'
 
 window.threeState = {
   currentDecalMaterial: 0,
+  decalsScale: 0.03,
+  shootRadius: window.innerHeight / 24,
   denimTextureScale: 0.8,
-  decalsScale: 0.03
+}
+
+window.switchToDecal = (_index) => {
+  threeState.currentDecalMaterial = _index
+  switch (threeState.currentDecalMaterial) {
+    case 0:
+      threeState.decalsScale = 0.03
+      threeState.shootRadius = window.innerHeight / 24
+
+      break;
+    case 1:
+      threeState.decalsScale = 0.04
+      threeState.shootRadius = window.innerHeight / 24
+
+      break;
+    case 2:
+      threeState.decalsScale = 0.04
+      threeState.shootRadius = window.innerHeight / 36
+
+      break;
+
+    default:
+      break;
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -23,16 +48,14 @@ let scene, camera, renderer, raycaster
 // let helperLine;
 let mouse = new THREE.Vector2();
 
+
 var pointerState = {
-  shootRadius: 20,
   isPointerDown: false,
-  actionStartPos: new THREE.Vector2(),
-  // shootRadius: 20,
-  shootRadius : window.innerHeight / 24
+  dragStartPos: new THREE.Vector2(),
+  lastDecalPos: undefined
 };
 
 let plane;
-let lastDecalPos = undefined
 let decalsMaterials;
 let decals = [];
 
@@ -133,37 +156,50 @@ const threeInit = async () => {
 
   const setListeners = (() => {
     window.addEventListener("pointerdown", function (event) {
-      pointerState.isPointerDown = true;
-      pointerState.actionStartPos.x = event.pageX;
-      pointerState.actionStartPos.y = event.pageY;
+      console.log("pointerdown");
 
-      // lastDecalPos = new THREE.Vector3((event.pageX/window.innerWidth)-0.5, (event.pageY/window.innerHeight)-0.5, 0);
+      pointerState.isPointerDown = true;
+      pointerState.dragStartPos.x = event.pageX;
+      pointerState.dragStartPos.y = event.pageY;
+
+      // pointerState.lastDecalPos = new THREE.Vector3((event.pageX/window.innerWidth)-0.5, (event.pageY/window.innerHeight)-0.5, 0);
+
+      // pointerState.lastDecalPos = new THREE.Vector3();
+      // pointerState.lastDecalPos.x = (event.clientX / window.innerWidth) * 2 - 1;
+      // pointerState.lastDecalPos.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      // pointerState.lastDecalPos.z = 0
 
       // pointerStartX = event.pageX;
       // pointerStartY = event.pageY;
 
-      console.log(
-        "pointerdown",
-        pointerState.actionStartPos.x,
-        pointerState.actionStartPos.y
-      );
+      // console.log(
+      //   "pointerdown",
+      //   pointerState.dragStartPos.x,
+      //   pointerState.dragStartPos.y
+      // );
     });
 
     window.addEventListener("pointermove", (event) => {
+      console.log("pointermove");
+
       if (pointerState.isPointerDown) {
-        let diffX = Math.abs(event.pageX - pointerState.actionStartPos.x);
-        let diffY = Math.abs(event.pageY - pointerState.actionStartPos.y);
+        if (pointerState.lastDecalPos === undefined) {
+          checkIntersection(event.clientX, event.clientY);
+        }
+
+        let diffX = Math.abs(event.pageX - pointerState.dragStartPos.x);
+        let diffY = Math.abs(event.pageY - pointerState.dragStartPos.y);
 
         if (
-          diffX > pointerState.shootRadius ||
-          diffY > pointerState.shootRadius
+          diffX > threeState.shootRadius ||
+          diffY > threeState.shootRadius
         ) {
           // console.log("pointermove", diffX, diffY);
           checkIntersection(event.clientX, event.clientY);
           if (intersection.intersects) shoot();
 
-          pointerState.actionStartPos.x = event.pageX;
-          pointerState.actionStartPos.y = event.pageY;
+          pointerState.dragStartPos.x = event.pageX;
+          pointerState.dragStartPos.y = event.pageY;
         } else {
           return
         }
@@ -174,7 +210,7 @@ const threeInit = async () => {
       console.log("pointerup");
 
       pointerState.isPointerDown = false;
-      lastDecalPos = undefined
+      pointerState.lastDecalPos = undefined
     });
 
     /****************************************************************************** */
@@ -217,10 +253,20 @@ function checkIntersection(x, y) {
     const p = intersects[0].point;
     intersection.point.copy(p);
 
-    const n = intersects[0].face.normal.clone();
-    n.transformDirection(plane.matrixWorld);
-    n.multiplyScalar(10);
-    n.add(intersects[0].point);
+    // const n = intersects[0].face.normal.clone();
+    // n.transformDirection(plane.matrixWorld);
+    // n.multiplyScalar(10);
+    // n.add(intersects[0].point);
+
+    console.log(pointerState.lastDecalPos)
+
+    if (pointerState.lastDecalPos === undefined) {
+      pointerState.lastDecalPos = new THREE.Vector3();
+      pointerState.lastDecalPos.copy(intersection.point);
+    }
+
+    console.log(pointerState.lastDecalPos)
+
 
 
     //pointer line update
@@ -241,18 +287,21 @@ function checkIntersection(x, y) {
 function shoot() {
   // set orientation
   const orientation = new THREE.Euler();
-  if (lastDecalPos !== undefined) {
 
-    let direction = new THREE.Vector3();
-    direction.subVectors(lastDecalPos, intersection.point);
+  console.log(pointerState.lastDecalPos)
 
-    let dir = (Math.atan2(direction.x, direction.y) + Math.PI / 2)*-1;
-    orientation.z = dir;
-    console.log(dir)
+  // if (pointerState.lastDecalPos !== undefined) {
 
-  } else {
-    orientation.copy(plane.rotation);
-  }
+  let direction = new THREE.Vector3();
+  direction.subVectors(pointerState.lastDecalPos, intersection.point);
+
+  let dir = (Math.atan2(direction.x, direction.y) + Math.PI / 2) * -1;
+  orientation.z = dir;
+  console.log(dir)
+
+  // } else {
+  //   orientation.copy(plane.rotation);
+  // }
 
   // set position
   const position = new THREE.Vector3();
@@ -275,13 +324,16 @@ function shoot() {
   decals.push(m);
   scene.add(m);
 
-  lastDecalPos = position;
+  pointerState.lastDecalPos = position;
+
 }
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 
 
 
-window.addEventListener('load', function(event) {
+window.addEventListener('load', function (event) {
   threeInit();
 });
