@@ -16,32 +16,17 @@ manager.onError = function (url) {
 
 
 
-import denimDiffuseURL from '/denim-diffuse.jpg'
-import denimNormalURL from '/denim-normal.jpg'
-import denimBumpURL from '/denim-bump.jpg'
-import denimRoughnessURL from '/denim-roughness.jpg'
-
-
-// import decal01DiffuseURL from '/test-02-diffuse.png'
-// import decal01NormalURL from '/test-02-normal.jpg'
-// import decal02DiffuseURL from '/test-01-diffuse.png'
-// import decal02NormalURL from '/test-01-normal.jpg'
-
-let decalsTextures = [
-    [
-        '/test-02-diffuse.png',
-        '/test-02-normal.jpg'
-    ],
-    [
-        '/test-01-diffuse.png',
-        '/test-01-normal.jpg'
-    ]
-]
-
 
 
 export const loadDenimMaterial = async () => {
-    const denimDiffuseTexture = await loader.load(denimDiffuseURL);
+    let denimTextures = {
+        diffuseURL: '/denim-diffuse.jpg',
+        normalURL: '/denim-normal.jpg',
+        bumpURL : '/denim-bump.jpg',
+        roughnessURL : '/denim-roughness.jpg'
+    }
+
+    const denimDiffuseTexture = await loader.load(denimTextures.diffuseURL);
     denimDiffuseTexture.wrapS = THREE.RepeatWrapping;
     denimDiffuseTexture.wrapT = THREE.RepeatWrapping;
     denimDiffuseTexture.repeat.set(
@@ -50,7 +35,7 @@ export const loadDenimMaterial = async () => {
     );
     denimDiffuseTexture.colorSpace = THREE.SRGBColorSpace;
 
-    const denimNormalTexture = await loader.load(denimNormalURL);
+    const denimNormalTexture = await loader.load(denimTextures.normalURL);
     denimNormalTexture.wrapS = THREE.RepeatWrapping;
     denimNormalTexture.wrapT = THREE.RepeatWrapping;
     denimNormalTexture.repeat.set(
@@ -58,7 +43,7 @@ export const loadDenimMaterial = async () => {
         threeState.denimTextureScale
     );
 
-    const denimRoughnessTexture = await loader.load(denimRoughnessURL);
+    const denimRoughnessTexture = await loader.load(denimTextures.roughnessURL);
     denimRoughnessTexture.wrapS = THREE.RepeatWrapping;
     denimRoughnessTexture.wrapT = THREE.RepeatWrapping;
     denimRoughnessTexture.repeat.set(
@@ -66,7 +51,7 @@ export const loadDenimMaterial = async () => {
         threeState.denimTextureScale
     );
 
-    const denimBumpTexture = await loader.load(denimBumpURL);
+    const denimBumpTexture = await loader.load(denimTextures.bumpURL);
     denimBumpTexture.wrapS = THREE.RepeatWrapping;
     denimBumpTexture.wrapT = THREE.RepeatWrapping;
     denimBumpTexture.repeat.set(
@@ -97,10 +82,28 @@ export const loadDenimMaterial = async () => {
 export const loadDecalsMaterial = async () => {
     let decalsMaterials = []
 
+    let decalsTextures = [
+        {
+            id: 0,
+            diffuseURL : '/test-02-diffuse.png',
+            normalURL : '/test-02-normal.jpg'
+        },
+        {
+            id: 1,
+            diffuseURL : '/test-01-diffuse.png',
+            normalURL : '/test-01-normal.jpg'
+        },
+        {
+            id: 2,
+            diffuseURL : '/test-03-diffuse.png',
+            normalURL : '/test-03-normal.jpg'
+        },
+    ]
+
     for(let decalTexture of decalsTextures){
-        const decalDiffuseTexture = await loader.load(decalTexture[0]);
+        const decalDiffuseTexture = await loader.load(decalTexture.diffuseURL);
         decalDiffuseTexture.colorSpace = THREE.SRGBColorSpace;
-        const decalNormalTexture = await loader.load(decalTexture[1]);
+        const decalNormalTexture = await loader.load(decalTexture.normalURL);
 
         const decalMaterial = new THREE.MeshPhongMaterial({
             specular: 0x444444,
