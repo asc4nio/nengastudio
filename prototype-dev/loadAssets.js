@@ -20,7 +20,7 @@ manager.onError = function (url) {
 
 export const loadDenimMaterial = async () => {
     let denimTextures = {
-        diffuseURL: '/denim-diffuse.jpg',
+        diffuseURL: '/denim-diffuse-recolor.jpg',
         normalURL: '/denim-normal.jpg',
         bumpURL : '/denim-bump.jpg',
         roughnessURL : '/denim-roughness.jpg'
@@ -85,18 +85,18 @@ export const loadDecalsMaterial = async () => {
     let decalsTextures = [
         {
             id: 0,
-            diffuseURL : '/test-02-diffuse.png',
-            normalURL : '/test-02-normal.jpg'
+            diffuseURL : '/brush01-diffuse.png',
+            normalURL : '/brush01-normal.jpg'
         },
         {
             id: 1,
-            diffuseURL : '/test-01-diffuse.png',
-            normalURL : '/test-01-normal.jpg'
+            diffuseURL : '/brush02-diffuse.png',
+            normalURL : '/brush02-normal.jpg'
         },
         {
             id: 2,
-            diffuseURL : '/test-03-diffuse.png',
-            normalURL : '/test-03-normal.jpg'
+            diffuseURL : '/brush03-diffuse.png',
+            normalURL : '/brush03-normal.jpg'
         },
     ]
 

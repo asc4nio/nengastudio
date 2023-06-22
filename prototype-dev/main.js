@@ -10,10 +10,18 @@ import { initSaveAsImage } from './saveAsImage.js'
 
 /////////////////////////////////////////////////////////////////////////////
 
+let decalsColors = [
+  new THREE.Color( 0xf10454 ),
+  new THREE.Color( 0xa6f1ac ),
+  new THREE.Color( 0x000acc ),
+  new THREE.Color( 0x110f00 ),
+]
+
 window.threeState = {
+  currentDecalColor : decalsColors[0],
   currentDecalMaterial: 0,
-  decalsScale: 0.03,
-  shootRadius: window.innerHeight / 24,
+  decalsScale: 0.05,
+  shootRadius: window.innerHeight / 32,
   denimTextureScale: 0.8,
 }
 
@@ -21,18 +29,18 @@ window.switchToDecal = (_index) => {
   threeState.currentDecalMaterial = _index
   switch (threeState.currentDecalMaterial) {
     case 0:
-      threeState.decalsScale = 0.03
-      threeState.shootRadius = window.innerHeight / 24
+      threeState.decalsScale = 0.05
+      threeState.shootRadius = window.innerHeight / 32
 
       break;
     case 1:
-      threeState.decalsScale = 0.04
-      threeState.shootRadius = window.innerHeight / 24
+      threeState.decalsScale = 0.05
+      threeState.shootRadius = window.innerHeight / 40
 
       break;
     case 2:
-      threeState.decalsScale = 0.04
-      threeState.shootRadius = window.innerHeight / 36
+      threeState.decalsScale = 0.05
+      threeState.shootRadius = window.innerHeight / 40
 
       break;
 
@@ -40,6 +48,11 @@ window.switchToDecal = (_index) => {
       break;
   }
 }
+
+window.switchToColor = (_index) => {
+  threeState.currentDecalColor = decalsColors[_index]
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -75,6 +88,8 @@ const threeInit = async () => {
 
   let denimMaterial = await loadDenimMaterial()
   decalsMaterials = await loadDecalsMaterial()
+
+  switchToDecal(0)
 
   scene = new THREE.Scene();
   raycaster = new THREE.Raycaster();
@@ -314,7 +329,9 @@ function shoot() {
   // set material
   const material = decalsMaterials[threeState.currentDecalMaterial].clone();
   // material.color.setHex(Math.random() * 0xffffff);
-  material.color.setHex(0xFFFF00);
+  // material.color.setHex(0xFFFF00);
+
+  material.color = threeState.currentDecalColor
 
   const m = new THREE.Mesh(
     new DecalGeometry(plane, position, orientation, size),
