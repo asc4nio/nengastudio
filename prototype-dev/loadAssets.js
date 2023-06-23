@@ -20,11 +20,17 @@ manager.onError = function (url) {
 
 export const loadDenimMaterial = async () => {
     let denimTextures = {
-        diffuseURL: '/denim-diffuse-recolor.jpg',
-        normalURL: '/denim-normal.jpg',
-        bumpURL : '/denim-bump.jpg',
-        roughnessURL : '/denim-roughness.jpg'
+        diffuseURL: 'https://asc4nio.github.io/nengastudio/prototype-dev/dist/denim-diffuse-recolor.jpg',
+        normalURL: 'https://asc4nio.github.io/nengastudio/prototype-dev/dist/denim-normal.jpg',
+        bumpURL : 'https://asc4nio.github.io/nengastudio/prototype-dev/dist/denim-bump.jpg',
+        roughnessURL : 'https://asc4nio.github.io/nengastudio/prototype-dev/dist/denim-roughness.jpg'
     }
+    // let denimTextures = {
+    //     diffuseURL: '/denim-diffuse-recolor.jpg',
+    //     normalURL: '/denim-normal.jpg',
+    //     bumpURL : '/denim-bump.jpg',
+    //     roughnessURL : '/denim-roughness.jpg'
+    // }
 
     const denimDiffuseTexture = await loader.load(denimTextures.diffuseURL);
     denimDiffuseTexture.wrapS = THREE.RepeatWrapping;
@@ -82,21 +88,39 @@ export const loadDenimMaterial = async () => {
 export const loadDecalsMaterial = async () => {
     let decalsMaterials = []
 
+    // let decalsTextures = [
+    //     {
+    //         id: 0,
+    //         diffuseURL : '/brush01-diffuse.png',
+    //         normalURL : '/brush01-normal.jpg'
+    //     },
+    //     {
+    //         id: 1,
+    //         diffuseURL : '/brush02-diffuse.png',
+    //         normalURL : '/brush02-normal.jpg'
+    //     },
+    //     {
+    //         id: 2,
+    //         diffuseURL : '/brush03-diffuse.png',
+    //         normalURL : '/brush03-normal.jpg'
+    //     },
+    // ]
+
     let decalsTextures = [
         {
             id: 0,
-            diffuseURL : '/brush01-diffuse.png',
-            normalURL : '/brush01-normal.jpg'
+            diffuseURL : 'https://asc4nio.github.io/nengastudio/prototype-dev/dist/brush01-diffuse.png',
+            normalURL : 'https://asc4nio.github.io/nengastudio/prototype-dev/dist/brush01-normal.jpg'
         },
         {
             id: 1,
-            diffuseURL : '/brush02-diffuse.png',
-            normalURL : '/brush02-normal.jpg'
+            diffuseURL : 'https://asc4nio.github.io/nengastudio/prototype-dev/dist/brush02-diffuse.png',
+            normalURL : 'https://asc4nio.github.io/nengastudio/prototype-dev/dist/brush02-normal.jpg'
         },
         {
             id: 2,
-            diffuseURL : '/brush03-diffuse.png',
-            normalURL : '/brush03-normal.jpg'
+            diffuseURL : 'https://asc4nio.github.io/nengastudio/prototype-dev/dist/brush03-diffuse.png',
+            normalURL : 'https://asc4nio.github.io/nengastudio/prototype-dev/dist/brush03-normal.jpg'
         },
     ]
 
