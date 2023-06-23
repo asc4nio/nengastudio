@@ -197,7 +197,9 @@ const threeInit = async () => {
     window.addEventListener("pointermove", (event) => {
       console.log("pointermove");
 
-      if (pointerState.isPointerDown) {
+      // if ( event.isPrimary ) {}
+
+      if (pointerState.isPointerDown && event.isPrimary) {
         if (pointerState.lastDecalPos === undefined) {
           checkIntersection(event.clientX, event.clientY);
         }
