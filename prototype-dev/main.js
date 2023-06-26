@@ -22,7 +22,7 @@ window.threeState = {
   currentDecalMaterial: 0,
   decalsScale: 0.05,
   shootRadius: window.innerHeight / 32,
-  denimTextureScale: 0.8,
+  denimTextureScale: 0.6,
 }
 
 window.switchToDecal = (_index) => {
@@ -83,7 +83,7 @@ let intersects = [];
 /////////////////////////////////////////////////////////////////////////////
 
 const threeInit = async () => {
-  console.log('threeInit')
+  console.debug('threeInit')
 
 
   let denimMaterial = await loadDenimMaterial()
@@ -123,19 +123,17 @@ const threeInit = async () => {
   })()
 
   const setLights = (() => {
-    scene.add(new THREE.AmbientLight(0x111111));
+    scene.add(new THREE.AmbientLight(0x808080));
 
-    const dirLight3 = new THREE.DirectionalLight(0xccffff, 1);
+
+    const dirLight3 = new THREE.DirectionalLight(0xdbfffa, 0.5);
     dirLight3.position.set(1, 1, 1);
     scene.add(dirLight3);
 
-    const dirLight1 = new THREE.DirectionalLight(0xffe5cc, 0.5);
+    const dirLight1 = new THREE.DirectionalLight(0xffffdb, 1);
     dirLight1.position.set(-1, 1, 1);
     scene.add(dirLight1);
 
-    // const dirLight2 = new THREE.DirectionalLight(0xccccff, 1);
-    // dirLight2.position.set(1, 0.75, 0.2);
-    // scene.add(dirLight2);
   })()
 
   const setPlane = (() => {
@@ -171,7 +169,7 @@ const threeInit = async () => {
 
   const setListeners = (() => {
     window.addEventListener("pointerdown", function (event) {
-      console.log("pointerdown");
+      // console.debug("pointerdown");
 
       pointerState.isPointerDown = true;
       pointerState.dragStartPos.x = event.pageX;
@@ -187,7 +185,7 @@ const threeInit = async () => {
       // pointerStartX = event.pageX;
       // pointerStartY = event.pageY;
 
-      // console.log(
+      // console.debug(
       //   "pointerdown",
       //   pointerState.dragStartPos.x,
       //   pointerState.dragStartPos.y
@@ -195,7 +193,7 @@ const threeInit = async () => {
     });
 
     window.addEventListener("pointermove", (event) => {
-      console.log("pointermove");
+      // console.debug("pointermove");
 
       // if ( event.isPrimary ) {}
 
@@ -211,7 +209,7 @@ const threeInit = async () => {
           diffX > threeState.shootRadius ||
           diffY > threeState.shootRadius
         ) {
-          // console.log("pointermove", diffX, diffY);
+          // console.debug("pointermove", diffX, diffY);
           checkIntersection(event.clientX, event.clientY);
           if (intersection.intersects) shoot();
 
@@ -224,7 +222,7 @@ const threeInit = async () => {
     });
 
     window.addEventListener("pointerup", function (event) {
-      console.log("pointerup");
+      // console.debug("pointerup");
 
       pointerState.isPointerDown = false;
       pointerState.lastDecalPos = undefined
@@ -233,11 +231,52 @@ const threeInit = async () => {
     /****************************************************************************** */
 
     window.addEventListener("resize", () => {
-      console.log('resizin')
+      // console.debug('resizin')
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
+
+  })()
+
+
+  const setDomControls = (()=>{
+    document.getElementById('clear-button').addEventListener("click", () => {
+      console.debug('clear-button')
+      clearDecals()
+    })
+
+    document.getElementById('decal0').addEventListener("click", () => {
+      console.debug('decal0')
+      switchToDecal(0)
+    })
+    document.getElementById('decal1').addEventListener("click", () => {
+      console.debug('decal1')
+      switchToDecal(1)
+    })
+    document.getElementById('decal2').addEventListener("click", () => {
+      console.debug('decal2')
+      switchToDecal(2)
+
+    })
+
+    document.getElementById('color0').addEventListener("click", () => {
+      console.debug('color0')
+      switchToColor(0)
+    })
+    document.getElementById('color1').addEventListener("click", () => {
+      console.debug('color1')
+      switchToColor(1)
+    })
+    document.getElementById('color2').addEventListener("click", () => {
+      console.debug('color2')
+      switchToColor(2)
+    })
+    document.getElementById('color3').addEventListener("click", () => {
+      console.debug('color3')
+      switchToColor(3)
+
+    })
 
   })()
 
@@ -254,7 +293,7 @@ const threeAnimate = () => {
 /////////////////////////////////////////////////////////////////////////////
 
 function checkIntersection(x, y) {
-  // console.log("checkIntersection", x, y);
+  // console.debug("checkIntersection", x, y);
 
   if (plane === undefined) return;
 
@@ -265,7 +304,7 @@ function checkIntersection(x, y) {
   raycaster.intersectObject(plane, false, intersects);
 
   if (intersects.length > 0) {
-    // console.log(intersects);
+    // console.debug(intersects);
 
     const p = intersects[0].point;
     intersection.point.copy(p);
@@ -275,14 +314,14 @@ function checkIntersection(x, y) {
     // n.multiplyScalar(10);
     // n.add(intersects[0].point);
 
-    console.log(pointerState.lastDecalPos)
+    // console.debug(pointerState.lastDecalPos)
 
     if (pointerState.lastDecalPos === undefined) {
       pointerState.lastDecalPos = new THREE.Vector3();
       pointerState.lastDecalPos.copy(intersection.point);
     }
 
-    console.log(pointerState.lastDecalPos)
+    // console.debug(pointerState.lastDecalPos)
 
 
 
@@ -296,7 +335,7 @@ function checkIntersection(x, y) {
 
     intersects.length = 0;
   } else {
-    // console.log(intersects)
+    // console.debug(intersects)
     intersection.intersects = false;
   }
 }
@@ -305,7 +344,7 @@ function shoot() {
   // set orientation
   const orientation = new THREE.Euler();
 
-  console.log(pointerState.lastDecalPos)
+  // console.debug(pointerState.lastDecalPos)
 
   // if (pointerState.lastDecalPos !== undefined) {
 
@@ -314,7 +353,7 @@ function shoot() {
 
   let dir = (Math.atan2(direction.x, direction.y) + Math.PI / 2) * -1;
   orientation.z = dir;
-  console.log(dir)
+  // console.debug(dir)
 
   // } else {
   //   orientation.copy(plane.rotation);
@@ -323,7 +362,7 @@ function shoot() {
   // set position
   const position = new THREE.Vector3();
   position.copy(intersection.point);
-  // console.log(position.x, position.y)
+  // console.debug(position.x, position.y)
 
   // set size
   const size = new THREE.Vector3(threeState.decalsScale, threeState.decalsScale, 1);
@@ -347,12 +386,20 @@ function shoot() {
 
 }
 
+function clearDecals(){
+  decals.forEach( function ( d ) {
+    scene.remove( d );
+  } );
+  decals.length = 0;
+}
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+threeInit();
 
-window.addEventListener('load', function (event) {
-  threeInit();
-});
+
+// window.addEventListener('load', function (event) {
+//   threeInit();
+// });

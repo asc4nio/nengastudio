@@ -2,7 +2,7 @@ export const initSaveAsImage = (_id, _renderer) => {
     document.getElementById(_id).addEventListener("click", () => {
         // saveAsImage();
         let link = document.createElement("a");
-        link.download = "image.png";
+        link.download = "nengastudio.png";
 
         _renderer.domElement.toBlob(function (blob) {
             link.href = URL.createObjectURL(blob);
