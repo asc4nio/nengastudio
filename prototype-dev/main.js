@@ -208,6 +208,25 @@ const threeInit = async () => {
 
 
   const setDomControls = (() => {
+
+    const switchDecalButtonClass = (_target)=>{
+      let decalsButtons = document.getElementsByClassName('decal')
+      for (let button of decalsButtons){
+        button.classList = 'decal'
+      }
+      console.log(_target)
+      _target.classList = 'decal is--active'
+    }
+
+    const switchColorButtonClass = (_target)=>{
+      let colorButtons = document.getElementsByClassName('color')
+      for (let button of colorButtons){
+        button.classList = 'color'
+      }
+      _target.classList = 'color is--active'
+    }
+
+
     document.getElementById('clear-button').addEventListener("click", () => {
       console.debug('clear-button')
       clearDecals()
@@ -216,36 +235,91 @@ const threeInit = async () => {
       console.debug('undo-button')
       removeLastDecal()
     })
-
-    document.getElementById('decal0').addEventListener("click", () => {
-      console.debug('decal0')
+    /** */
+    document.getElementById('decal0').addEventListener("click", (e) => {
+      console.debug('decal0', e)
       switchToDecal(0)
+      switchDecalButtonClass(e.target)
+
+      // let decalsButtons = document.getElementsByClassName('decal')
+      // for (let button of decalsButtons){
+      //   button.classList = 'decal'
+      // }
+      // e.target.classList = 'decal is--active'
     })
-    document.getElementById('decal1').addEventListener("click", () => {
+    document.getElementById('decal1').addEventListener("click", (e) => {
       console.debug('decal1')
       switchToDecal(1)
+      switchDecalButtonClass(e.target)
+
+
+      // let decalsButtons = document.getElementsByClassName('decal')
+      // for (let button of decalsButtons){
+      //   button.classList = 'decal'
+      // }
+      // e.target.classList = 'decal is--active'
     })
-    document.getElementById('decal2').addEventListener("click", () => {
+    document.getElementById('decal2').addEventListener("click", (e) => {
       console.debug('decal2')
       switchToDecal(2)
+      switchDecalButtonClass(e.target)
+
+
+      // let decalsButtons = document.getElementsByClassName('decal')
+      // for (let button of decalsButtons){
+      //   button.classList = 'decal'
+      // }
+      // e.target.classList = 'decal is--active'
 
     })
-
-    document.getElementById('color0').addEventListener("click", () => {
+    /** */
+    document.getElementById('color0').addEventListener("click", (e) => {
       console.debug('color0')
       switchToColor(0)
+      switchColorButtonClass(e.target)
+
+      // let colorButtons = document.getElementsByClassName('color')
+      // for (let button of colorButtons){
+      //   button.classList = 'color'
+      // }
+      // e.target.classList = 'color is--active'
     })
-    document.getElementById('color1').addEventListener("click", () => {
+    document.getElementById('color1').addEventListener("click", (e) => {
       console.debug('color1')
       switchToColor(1)
+      switchColorButtonClass(e.target)
+
+
+      // let colorButtons = document.getElementsByClassName('color')
+      // for (let button of colorButtons){
+      //   button.classList = 'color'
+      // }
+      // e.target.classList = 'color is--active'
+
     })
-    document.getElementById('color2').addEventListener("click", () => {
+    document.getElementById('color2').addEventListener("click", (e) => {
       console.debug('color2')
       switchToColor(2)
+      switchColorButtonClass(e.target)
+
+
+      // let colorButtons = document.getElementsByClassName('color')
+      // for (let button of colorButtons){
+      //   button.classList = 'color'
+      // }
+      // e.target.classList = 'color is--active'
     })
-    document.getElementById('color3').addEventListener("click", () => {
+    document.getElementById('color3').addEventListener("click", (e) => {
       console.debug('color3')
       switchToColor(3)
+      switchColorButtonClass(e.target)
+
+
+      // let colorButtons = document.getElementsByClassName('color')
+      // for (let button of colorButtons){
+      //   button.classList = 'color'
+      // }
+      // e.target.classList = 'color is--active'
 
     })
 
