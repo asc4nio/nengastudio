@@ -58,6 +58,7 @@ window.switchToColor = (_index) => {
 
 
 let scene, camera, renderer, raycaster
+// let helperLine;
 let mouse = new THREE.Vector2();
 
 
@@ -83,6 +84,7 @@ let intersects = [];
 
 const threeInit = async () => {
   console.debug('threeInit')
+
 
   let denimMaterial = await loadDenimMaterial()
   decalsMaterials = await loadDecalsMaterial()
@@ -150,6 +152,20 @@ const threeInit = async () => {
   })()
 
 
+  //pointer line
+  // const geometry = new THREE.BufferGeometry();
+  // geometry.setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+  // helperLine = new THREE.Line(geometry, new THREE.LineBasicMaterial());
+  // helperLine.visible = false;
+  // scene.add(helperLine);
+
+  //mouseHelper
+  // mouseHelper = new THREE.Mesh(
+  //   new THREE.BoxGeometry(1, 1, 10),
+  //   new THREE.MeshNormalMaterial()
+  // );
+  // mouseHelper.visible = false;
+  // scene.add(mouseHelper);
 
   const setListeners = (() => {
     window.addEventListener("pointerdown", function (event) {
@@ -159,10 +175,27 @@ const threeInit = async () => {
       pointerState.dragStartPos.x = event.pageX;
       pointerState.dragStartPos.y = event.pageY;
 
+      // pointerState.lastDecalPos = new THREE.Vector3((event.pageX/window.innerWidth)-0.5, (event.pageY/window.innerHeight)-0.5, 0);
+
+      // pointerState.lastDecalPos = new THREE.Vector3();
+      // pointerState.lastDecalPos.x = (event.clientX / window.innerWidth) * 2 - 1;
+      // pointerState.lastDecalPos.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      // pointerState.lastDecalPos.z = 0
+
+      // pointerStartX = event.pageX;
+      // pointerStartY = event.pageY;
+
+      // console.debug(
+      //   "pointerdown",
+      //   pointerState.dragStartPos.x,
+      //   pointerState.dragStartPos.y
+      // );
     });
 
     window.addEventListener("pointermove", (event) => {
       // console.debug("pointermove");
+
+      // if ( event.isPrimary ) {}
 
       if (pointerState.isPointerDown && event.isPrimary) {
         if (pointerState.lastDecalPos === undefined) {
@@ -280,10 +313,28 @@ function checkIntersection(x, y) {
     const p = intersects[0].point;
     intersection.point.copy(p);
 
+    // const n = intersects[0].face.normal.clone();
+    // n.transformDirection(plane.matrixWorld);
+    // n.multiplyScalar(10);
+    // n.add(intersects[0].point);
+
+    // console.debug(pointerState.lastDecalPos)
+
     if (pointerState.lastDecalPos === undefined) {
       pointerState.lastDecalPos = new THREE.Vector3();
       pointerState.lastDecalPos.copy(intersection.point);
     }
+
+    // console.debug(pointerState.lastDecalPos)
+
+
+
+    //pointer line update
+    // const positions = helperLine.geometry.attributes.position;
+    // positions.setXYZ(0, p.x, p.y, p.z);
+    // positions.setXYZ(1, n.x, n.y, n.z);
+    // positions.needsUpdate = true;
+
     intersection.intersects = true;
 
     intersects.length = 0;
@@ -297,12 +348,20 @@ function shoot() {
   // set orientation
   const orientation = new THREE.Euler();
 
+  // console.debug(pointerState.lastDecalPos)
+
+  // if (pointerState.lastDecalPos !== undefined) {
+
   let direction = new THREE.Vector3();
   direction.subVectors(pointerState.lastDecalPos, intersection.point);
 
   let dir = (Math.atan2(direction.x, direction.y) + Math.PI / 2) * -1;
   orientation.z = dir;
   // console.debug(dir)
+
+  // } else {
+  //   orientation.copy(plane.rotation);
+  // }
 
   // set position
   const position = new THREE.Vector3();
@@ -314,6 +373,8 @@ function shoot() {
 
   // set material
   const material = decalsMaterials[threeState.currentDecalMaterial].clone();
+  // material.color.setHex(Math.random() * 0xffffff);
+  // material.color.setHex(0xFFFF00);
 
   material.color = threeState.currentDecalColor
 
@@ -336,7 +397,7 @@ function clearDecals() {
   decals.length = 0;
 }
 
-function removeLastDecal() {
+function removeLastDecal (){
   scene.remove(decals[decals.length - 1])
   decals.pop()
 }
@@ -348,4 +409,5 @@ threeInit();
 
 
 // window.addEventListener('load', function (event) {
+//   threeInit();
 // });
