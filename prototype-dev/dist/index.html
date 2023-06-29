@@ -6,11 +6,40 @@
   <link rel="icon" type="image/svg+xml" href="./vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ascanio - nengastudio</title>
-  <script type="module" crossorigin src="./assets/index-67399b07.js"></script>
-  <link rel="stylesheet" href="./assets/index-bbcb64b9.css">
+  <style>
+    #loading-overlay {
+      position: fixed;
+      z-index: 9999;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+
+      /* display: flex;
+      align-items: center;
+      justify-content: center; */
+      
+      color: white;
+      background-color: black;
+
+      opacity: 1;
+      transition: opacity 1s ease;
+
+    }
+
+    #loading-overlay.is--away {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+  <script type="module" crossorigin src="./assets/index-2063e53b.js"></script>
+  <link rel="stylesheet" href="./assets/index-a411961e.css">
 </head>
 
 <body>
+  <div id="loading-overlay">
+    Loading...
+  </div>
   <div id="app"></div>
   <div id="controls">
 
@@ -31,6 +60,8 @@
       <button class="color" id="color1"></button>
       <button class="color" id="color2"></button>
       <button class="color" id="color3"></button>
+      <button class="color" id="color4"></button>
+
     </div>
 
     <div class="control-group">
@@ -48,11 +79,16 @@
         </svg>
       </button>
       <button id="undo-button">
-        <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48"><path d="M280-200v-60h289q70 0 120.5-46.5T740-422q0-69-50.5-115.5T569-584H274l114 114-42 42-186-186 186-186 42 42-114 114h294q95 0 163.5 64T800-422q0 94-68.5 158T568-200H280Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48">
+          <path
+            d="M280-200v-60h289q70 0 120.5-46.5T740-422q0-69-50.5-115.5T569-584H274l114 114-42 42-186-186 186-186 42 42-114 114h294q95 0 163.5 64T800-422q0 94-68.5 158T568-200H280Z" />
+        </svg>
       </button>
     </div>
 
   </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
   
 </body>
 

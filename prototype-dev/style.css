@@ -20,7 +20,7 @@ button{
   align-items: center;
   justify-content: center;
 
-  font-size: 1em;
+  /* font-size: 1em; */
   border: none;
   border-radius: 1em;
 
@@ -64,7 +64,7 @@ button > svg {
   left: 0;
   bottom: auto;
   right: 0;
-  z-index: 100;
+  z-index: 1;
 
   display: flex;
   justify-content: space-around;
@@ -78,20 +78,25 @@ button > svg {
 
 #color0 {
   color: white;
-  background-color: #f10454 ;
+  background-color: #ffe715 ;
 }
 #color1 {
   color: white;
-  background-color: #a6f1ac ;
+  background-color: #a1c23d ;
 }
 #color2 {
   color: white;
-  background-color: #000acc ;
+  background-color: #008c45 ;
 }
 #color3 {
   color: white;
-  background-color: #110f00;
+  background-color: #19548e;
 }
+#color4 {
+  color: white;
+  background-color: #25262a;
+}
+
 
 
 
