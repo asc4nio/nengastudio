@@ -4,55 +4,49 @@ import * as THREE from 'three';
 import { DecalGeometry } from "three/addons/geometries/DecalGeometry.js";
 // import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-import { loadDenimMaterial, loadDecalsMaterial, loadLogoMaterial } from './loadAssets.js'
+import { loadDenimMaterial, loadDecalsMaterial } from './loadAssets.js'
 import { initSaveAsImage } from './saveAsImage.js'
-
-console.log(gsap)
 
 
 /////////////////////////////////////////////////////////////////////////////
-let decalsColors = [
-  new THREE.Color(0xffe715),
-  new THREE.Color(0xa1c23d),
-  new THREE.Color(0x008c45),
-  new THREE.Color(0x19548e),
-  new THREE.Color(0x25262a),
 
+let decalsColors = [
+  new THREE.Color(0xf10454),
+  new THREE.Color(0xa6f1ac),
+  new THREE.Color(0x000acc),
+  new THREE.Color(0x110f00),
 ]
 
 window.threeState = {
-  denimTextureScale: 1.4,
   currentDecalColor: decalsColors[0],
   currentDecalMaterial: 0,
-  decalsScale: undefined,
-  shootRadius: undefined,
+  decalsScale: 0.05,
+  shootRadius: window.innerHeight / 32,
+  denimTextureScale: 0.6,
 }
-
-
-window.threeDecalsParams = [
-  {
-    id: 0,
-    decalsScale: 0.03,
-    shootRadius : window.innerHeight / 56
-  },
-  {
-    id: 1,
-    decalsScale: 0.03,
-    shootRadius : window.innerHeight / 72
-  },
-  {
-    id: 2,
-    decalsScale: 0.03,
-    shootRadius : window.innerHeight / 72
-  },
-]
 
 window.switchToDecal = (_index) => {
   threeState.currentDecalMaterial = _index
+  switch (threeState.currentDecalMaterial) {
+    case 0:
+      threeState.decalsScale = 0.05
+      threeState.shootRadius = window.innerHeight / 32
 
-  threeState.decalsScale = threeDecalsParams[_index].decalsScale
-  threeState.shootRadius = threeDecalsParams[_index].shootRadius
+      break;
+    case 1:
+      threeState.decalsScale = 0.05
+      threeState.shootRadius = window.innerHeight / 40
 
+      break;
+    case 2:
+      threeState.decalsScale = 0.05
+      threeState.shootRadius = window.innerHeight / 40
+
+      break;
+
+    default:
+      break;
+  }
 }
 
 window.switchToColor = (_index) => {
@@ -64,6 +58,7 @@ window.switchToColor = (_index) => {
 
 
 let scene, camera, renderer, raycaster
+// let helperLine;
 let mouse = new THREE.Vector2();
 
 
@@ -90,9 +85,9 @@ let intersects = [];
 const threeInit = async () => {
   console.debug('threeInit')
 
+
   let denimMaterial = await loadDenimMaterial()
   decalsMaterials = await loadDecalsMaterial()
-  let logoMaterial = await loadLogoMaterial()
 
   switchToDecal(0)
 
@@ -128,20 +123,16 @@ const threeInit = async () => {
   })()
 
   const setLights = (() => {
-    scene.add(new THREE.AmbientLight(0xFFFFFF, 0.33));
+    scene.add(new THREE.AmbientLight(0x808080));
 
-    // const dirLight3 = new THREE.DirectionalLight(0xdbfffa, 0.5);
-    // dirLight3.position.set(1, 1, 1);
-    // scene.add(dirLight3);
 
-    // const dirLight1 = new THREE.DirectionalLight(0xffffdb, 1);
-    // dirLight1.position.set(-1, 1, 1);
-    // scene.add(dirLight1);
+    const dirLight3 = new THREE.DirectionalLight(0xdbfffa, 0.5);
+    dirLight3.position.set(1, 1, 1);
+    scene.add(dirLight3);
 
-    const light = new THREE.PointLight(0xffffff, 1, 6.66);
-    light.position.set(0, 0.5, 2);
-    scene.add(light);
-    console.log(light)
+    const dirLight1 = new THREE.DirectionalLight(0xffffdb, 1);
+    dirLight1.position.set(-1, 1, 1);
+    scene.add(dirLight1);
 
   })()
 
@@ -160,24 +151,21 @@ const threeInit = async () => {
 
   })()
 
-  const setLogo = (() => {
-    const orientation = new THREE.Euler(0, 0, 0);
-    const position = new THREE.Vector3();
-    let scale = 0.5
-    const size = new THREE.Vector3(scale, scale, 1);
 
-    const material = logoMaterial.clone();
+  //pointer line
+  // const geometry = new THREE.BufferGeometry();
+  // geometry.setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+  // helperLine = new THREE.Line(geometry, new THREE.LineBasicMaterial());
+  // helperLine.visible = false;
+  // scene.add(helperLine);
 
-    const logoDecal = new THREE.Mesh(
-      new DecalGeometry(plane, position, orientation, size),
-      material
-    );
-
-    scene.add(logoDecal);
-
-  })()
-
-
+  //mouseHelper
+  // mouseHelper = new THREE.Mesh(
+  //   new THREE.BoxGeometry(1, 1, 10),
+  //   new THREE.MeshNormalMaterial()
+  // );
+  // mouseHelper.visible = false;
+  // scene.add(mouseHelper);
 
   const setListeners = (() => {
     window.addEventListener("pointerdown", function (event) {
@@ -187,10 +175,27 @@ const threeInit = async () => {
       pointerState.dragStartPos.x = event.pageX;
       pointerState.dragStartPos.y = event.pageY;
 
+      // pointerState.lastDecalPos = new THREE.Vector3((event.pageX/window.innerWidth)-0.5, (event.pageY/window.innerHeight)-0.5, 0);
+
+      // pointerState.lastDecalPos = new THREE.Vector3();
+      // pointerState.lastDecalPos.x = (event.clientX / window.innerWidth) * 2 - 1;
+      // pointerState.lastDecalPos.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      // pointerState.lastDecalPos.z = 0
+
+      // pointerStartX = event.pageX;
+      // pointerStartY = event.pageY;
+
+      // console.debug(
+      //   "pointerdown",
+      //   pointerState.dragStartPos.x,
+      //   pointerState.dragStartPos.y
+      // );
     });
 
     window.addEventListener("pointermove", (event) => {
       // console.debug("pointermove");
+
+      // if ( event.isPrimary ) {}
 
       if (pointerState.isPointerDown && event.isPrimary) {
         if (pointerState.lastDecalPos === undefined) {
@@ -236,25 +241,6 @@ const threeInit = async () => {
 
 
   const setDomControls = (() => {
-
-    const switchDecalButtonClass = (_target) => {
-      let decalsButtons = document.getElementsByClassName('decal')
-      for (let button of decalsButtons) {
-        button.classList = 'decal'
-      }
-      console.log(_target)
-      _target.classList = 'decal is--active'
-    }
-
-    const switchColorButtonClass = (_target) => {
-      let colorButtons = document.getElementsByClassName('color')
-      for (let button of colorButtons) {
-        button.classList = 'color'
-      }
-      _target.classList = 'color is--active'
-    }
-
-
     document.getElementById('clear-button').addEventListener("click", () => {
       console.debug('clear-button')
       clearDecals()
@@ -263,51 +249,36 @@ const threeInit = async () => {
       console.debug('undo-button')
       removeLastDecal()
     })
-    /** */
-    document.getElementById('decal0').addEventListener("click", (e) => {
-      console.debug('decal0', e)
+
+    document.getElementById('decal0').addEventListener("click", () => {
+      console.debug('decal0')
       switchToDecal(0)
-      switchDecalButtonClass(e.target)
     })
-    document.getElementById('decal1').addEventListener("click", (e) => {
+    document.getElementById('decal1').addEventListener("click", () => {
       console.debug('decal1')
       switchToDecal(1)
-      switchDecalButtonClass(e.target)
     })
-    document.getElementById('decal2').addEventListener("click", (e) => {
+    document.getElementById('decal2').addEventListener("click", () => {
       console.debug('decal2')
       switchToDecal(2)
-      switchDecalButtonClass(e.target)
 
     })
-    /** */
-    document.getElementById('color0').addEventListener("click", (e) => {
+
+    document.getElementById('color0').addEventListener("click", () => {
       console.debug('color0')
       switchToColor(0)
-      switchColorButtonClass(e.target)
-
     })
-    document.getElementById('color1').addEventListener("click", (e) => {
+    document.getElementById('color1').addEventListener("click", () => {
       console.debug('color1')
       switchToColor(1)
-      switchColorButtonClass(e.target)
-
     })
-    document.getElementById('color2').addEventListener("click", (e) => {
+    document.getElementById('color2').addEventListener("click", () => {
       console.debug('color2')
       switchToColor(2)
-      switchColorButtonClass(e.target)
     })
-    document.getElementById('color3').addEventListener("click", (e) => {
+    document.getElementById('color3').addEventListener("click", () => {
       console.debug('color3')
       switchToColor(3)
-      switchColorButtonClass(e.target)
-
-    })
-    document.getElementById('color4').addEventListener("click", (e) => {
-      console.debug('color4')
-      switchToColor(4)
-      switchColorButtonClass(e.target)
 
     })
 
@@ -342,10 +313,28 @@ function checkIntersection(x, y) {
     const p = intersects[0].point;
     intersection.point.copy(p);
 
+    // const n = intersects[0].face.normal.clone();
+    // n.transformDirection(plane.matrixWorld);
+    // n.multiplyScalar(10);
+    // n.add(intersects[0].point);
+
+    // console.debug(pointerState.lastDecalPos)
+
     if (pointerState.lastDecalPos === undefined) {
       pointerState.lastDecalPos = new THREE.Vector3();
       pointerState.lastDecalPos.copy(intersection.point);
     }
+
+    // console.debug(pointerState.lastDecalPos)
+
+
+
+    //pointer line update
+    // const positions = helperLine.geometry.attributes.position;
+    // positions.setXYZ(0, p.x, p.y, p.z);
+    // positions.setXYZ(1, n.x, n.y, n.z);
+    // positions.needsUpdate = true;
+
     intersection.intersects = true;
 
     intersects.length = 0;
@@ -359,12 +348,20 @@ function shoot() {
   // set orientation
   const orientation = new THREE.Euler();
 
+  // console.debug(pointerState.lastDecalPos)
+
+  // if (pointerState.lastDecalPos !== undefined) {
+
   let direction = new THREE.Vector3();
   direction.subVectors(pointerState.lastDecalPos, intersection.point);
 
   let dir = (Math.atan2(direction.x, direction.y) + Math.PI / 2) * -1;
   orientation.z = dir;
   // console.debug(dir)
+
+  // } else {
+  //   orientation.copy(plane.rotation);
+  // }
 
   // set position
   const position = new THREE.Vector3();
@@ -376,6 +373,8 @@ function shoot() {
 
   // set material
   const material = decalsMaterials[threeState.currentDecalMaterial].clone();
+  // material.color.setHex(Math.random() * 0xffffff);
+  // material.color.setHex(0xFFFF00);
 
   material.color = threeState.currentDecalColor
 
@@ -398,7 +397,7 @@ function clearDecals() {
   decals.length = 0;
 }
 
-function removeLastDecal() {
+function removeLastDecal (){
   scene.remove(decals[decals.length - 1])
   decals.pop()
 }
@@ -410,4 +409,5 @@ threeInit();
 
 
 // window.addEventListener('load', function (event) {
+//   threeInit();
 // });
