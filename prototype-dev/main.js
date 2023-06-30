@@ -21,7 +21,7 @@ let decalsColors = [
 ]
 
 window.threeState = {
-  denimTextureScale: 1.4,
+  denimTextureScale: 2,
   currentDecalColor: decalsColors[0],
   currentDecalMaterial: 0,
   decalsScale: undefined,
